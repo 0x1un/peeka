@@ -7,7 +7,6 @@ import (
 	"os"
 	"screenshot/action"
 	"screenshot/loginzbx"
-	"screenshot/man"
 	"screenshot/savepic"
 	"screenshot/util"
 	"time"
@@ -16,17 +15,16 @@ import (
 )
 
 var (
-	ctx     context.Context
 	options []chromedp.ExecAllocatorOption
-	version = "0.0.2"
+	version = "0.0.3"
+	ctx     context.Context
+	cancel  context.CancelFunc
 )
 
 var a util.Argv
 
 func init() {
-	util.SignalReading(func() {})
 	a = util.ParamParser(version)
-	man.HelpAsk()
 	if len(os.Args) < 2 {
 		fmt.Println("或许你需要指定些什么参数?")
 		os.Exit(0)
@@ -38,30 +36,30 @@ func init() {
 	}
 	ctx = context.Background()
 	options = []chromedp.ExecAllocatorOption{
-		// chromedp.Flag("headless", false),        // 浏览器模式默认为headless, 有需求可将其改为true
-		chromedp.Flag("hide-scrollbars", false), // 打开那个啥, 忘记中文名词叫啥来着了
-		chromedp.Flag("mute-audio", false),      // 声音操作
+		// chromedp.Flag("headless", false),
+		chromedp.Flag("hide-scrollbars", false),
+		chromedp.Flag("mute-audio", false),
 		chromedp.UserAgent(`Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36`),
 	}
-	options = append(chromedp.DefaultExecAllocatorOptions[:], options...) // 应用并覆盖选项
+	options = append(chromedp.DefaultExecAllocatorOptions[:], options...)
 }
 
 func Run() {
-	// 存图片数据的buffer
 	var buf []byte
-	c, cc := chromedp.NewExecAllocator(ctx, options...)
-	defer cc() // 资源释放
-	ctx, cancel := context.WithTimeout(c, time.Second*20)
+	ctx, cancel = chromedp.NewExecAllocator(ctx, options...)
+	ctx, cancel = context.WithTimeout(ctx, time.Second*time.Duration(a.TotalTimeOut))
 	ctx, cancel = chromedp.NewContext(ctx)
-	defer cancel() // 资源释放
+	defer cancel()
 	util.SignalReading(cancel)
+
+	log.Println("初始化中...")
 
 	if err := chromedp.Run(
 		ctx,
-		action.SigninAction(a.Host, a.Username, a.Password), // 这个账户密码我就先这么写吧, 一会儿再添加到配置文件
+		action.SigninAction(a.Host, a.Username, a.Password),
 	); err != nil {
-		// log.Println(err.Error())
-		_ = err
+		log.Println("未在$PATH中找到Chrome/Chromium")
+		os.Exit(0)
 	}
 
 	for k, v := range util.LoadJsonConfigToMap(a.Config) {
