@@ -25,7 +25,7 @@ Options:
   -p password
     	zabbix的用户密码 password (default "zabbix")
   -s serverName
-    	zabbix服务器地址 serverName (default "140.246.36.89:8096")
+    	zabbix服务器地址 serverName (default "127.0.0.1")
   -t waitTime
     	网页加载等待时间, (t) == int && (t) >= 1, 单位(ms) waitTime (default 1000)
   -u username
