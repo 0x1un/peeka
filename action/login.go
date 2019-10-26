@@ -2,6 +2,7 @@ package action
 
 import "github.com/chromedp/chromedp"
 
+// SigninAction: 登录zabbix获取访问权限
 func SigninAction(loginUrl, username, password string) chromedp.Tasks {
 	return chromedp.Tasks{
 		chromedp.Navigate("http://" + loginUrl),

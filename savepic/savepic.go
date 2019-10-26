@@ -12,10 +12,11 @@ import (
 	gim "github.com/ozankasikci/go-image-merge"
 )
 
+// SaveImg: 访问线路监控图并保存
 func SaveImg(ctx context.Context, urls []map[string]string, dir string, sleepTime int, buf []byte) ([]*gim.Grid, int, error) {
 	util.CreateDirIfNotExist(dir)
 	var file string
-	grids := []*gim.Grid{}
+	var grids []*gim.Grid
 	count := 0
 	for _, x := range urls {
 		for k, v := range x {

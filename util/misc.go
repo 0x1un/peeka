@@ -13,6 +13,7 @@ import (
 	"syscall"
 )
 
+// LoadJsonConfigToMap: 加载配置文件到map
 func LoadJsonConfigToMap(filename string) map[string][]map[string]string {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -26,6 +27,8 @@ func LoadJsonConfigToMap(filename string) map[string][]map[string]string {
 
 	return v
 }
+
+// CreateDirIfNotExist: 如果目录不存在就创建
 func CreateDirIfNotExist(dir string) {
 	log.Printf("创建目录: %s\n", dir)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
@@ -36,6 +39,7 @@ func CreateDirIfNotExist(dir string) {
 	}
 }
 
+// Argv: 参数解析结构体
 type Argv struct {
 	Username     string
 	Password     string
@@ -47,7 +51,7 @@ type Argv struct {
 	TotalTimeOut int
 }
 
-// go version go1.13.3 linux/amd64
+// ParamParser: 解析参数
 func ParamParser(version string) Argv {
 	var a Argv
 
@@ -75,6 +79,7 @@ func ParamParser(version string) Argv {
 	return a
 }
 
+// SignalReading: 捕获Ctrl-C信号并释放资源
 func SignalReading(cancel func()) {
 	c := make(chan os.Signal, 2)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
@@ -84,8 +89,4 @@ func SignalReading(cancel func()) {
 		cancel()
 		os.Exit(0)
 	}()
-}
-
-func IsExistChrome() bool {
-	return false
 }

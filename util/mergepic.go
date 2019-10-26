@@ -13,6 +13,7 @@ import (
 	gim "github.com/ozankasikci/go-image-merge"
 )
 
+// MergeImage: 合并图片, 合并规则由(x,y)决定
 func MergeImage(grids []*gim.Grid, x, y int, filename string) error {
 	if len(grids) == 0 {
 		return errors.New("No pictures..")
@@ -35,6 +36,7 @@ func MergeImage(grids []*gim.Grid, x, y int, filename string) error {
 	return nil
 }
 
+// FullScreenshot: 截取完整图片
 func FullScreenshot(quality int64, res *[]byte) chromedp.Tasks {
 	return chromedp.Tasks{
 		chromedp.ActionFunc(func(ctx context.Context) error {

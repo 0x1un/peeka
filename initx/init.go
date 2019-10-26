@@ -15,14 +15,15 @@ import (
 )
 
 var (
-	options []chromedp.ExecAllocatorOption
 	version = "0.0.3"
+	options []chromedp.ExecAllocatorOption
 	ctx     context.Context
 	cancel  context.CancelFunc
 )
 
 var a util.Argv
 
+// init: 初始化一些必要配置
 func init() {
 	a = util.ParamParser(version)
 	if len(os.Args) < 2 {
@@ -44,6 +45,7 @@ func init() {
 	options = append(chromedp.DefaultExecAllocatorOptions[:], options...)
 }
 
+// Run: 总调用接口
 func Run() {
 	var buf []byte
 	ctx, cancel = chromedp.NewExecAllocator(ctx, options...)

@@ -6,7 +6,7 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-// chromedp.EvaluateAsDevTools(`document.getElementById('iframeResult').contentWindow.document.querySelector('body > form > input[type="button"]').click()`, evalRes),
+// NetworkTrafficAction: 进入指定线路，选取指定时间内的流量状况
 func NetworkTrafficAction(url string, timeRange, sleepTime int) chromedp.Tasks {
 	var tasks chromedp.Tasks
 	tasks = append(tasks, chromedp.Navigate(url))
