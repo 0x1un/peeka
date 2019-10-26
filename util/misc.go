@@ -37,13 +37,14 @@ func CreateDirIfNotExist(dir string) {
 }
 
 type Argv struct {
-	Username string
-	Password string
-	Config   string
-	Timeout  int
-	Host     string
-	Help     bool
-	Version  bool
+	Username     string
+	Password     string
+	Config       string
+	Timeout      int
+	Host         string
+	Help         bool
+	Version      bool
+	TotalTimeOut int
 }
 
 // go version go1.13.3 linux/amd64
@@ -56,7 +57,8 @@ func ParamParser(version string) Argv {
 	flag.StringVar(&a.Password, "p", "zabbix", "zabbix的用户密码 `password`")
 	flag.StringVar(&a.Config, "c", "config.json", "配置文件地址 `config`")
 	flag.StringVar(&a.Host, "s", "140.246.36.89:8096", "zabbix服务器地址 `serverName`")
-	flag.IntVar(&a.Timeout, "t", 1000, "网页加载等待时间, (t) == int && (t) >= 1, 单位(ms) `waitTime`")
+	flag.IntVar(&a.Timeout, "t", 1000, "单个页面抓取等待时间(ms) `waitTime`")
+	flag.IntVar(&a.TotalTimeOut, "t-time", 60, "程序总超时时间, =waitTime*抓取数量(s) `TotalTimeOut`")
 	flag.Usage = man.Usage
 	flag.Parse()
 	goos := runtime.GOOS
@@ -82,4 +84,8 @@ func SignalReading(cancel func()) {
 		cancel()
 		os.Exit(0)
 	}()
+}
+
+func IsExistChrome() bool {
+	return false
 }
