@@ -1,14 +1,14 @@
-package initx
+package run
 
 import (
 	"context"
 	"fmt"
 	"log"
 	"os"
-	"screenshot/action"
-	"screenshot/loginzbx"
-	"screenshot/savepic"
-	"screenshot/util"
+	"peeka/internal/screenshot/action"
+	"peeka/internal/screenshot/loginzbx"
+	"peeka/internal/screenshot/savepic"
+	"peeka/internal/screenshot/util"
 	"time"
 
 	"github.com/chromedp/chromedp"
@@ -37,7 +37,7 @@ func init() {
 	}
 	ctx = context.Background()
 	options = []chromedp.ExecAllocatorOption{
-		// chromedp.Flag("headless", false),
+		chromedp.Flag("headless", false),
 		chromedp.Flag("hide-scrollbars", false),
 		chromedp.Flag("mute-audio", false),
 		chromedp.UserAgent(`Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36`),

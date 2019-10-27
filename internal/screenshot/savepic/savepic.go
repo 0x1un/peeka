@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"log"
 	"path"
-	"screenshot/action"
-	"screenshot/util"
+	"peeka/internal/screenshot/action"
+	"peeka/internal/screenshot/util"
 
 	"github.com/chromedp/chromedp"
 	gim "github.com/ozankasikci/go-image-merge"
