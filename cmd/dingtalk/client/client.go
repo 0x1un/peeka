@@ -93,12 +93,12 @@ func (d *DingTalkClient) Get(path string, params url.Values) ([]byte, error) {
 	return text, nil
 }
 
-func (d *DingTalkClient) Post(path string, params misc.Params) ([]byte, error) {
+func (d *DingTalkClient) Post(path string, urlP url.Values, params misc.Data) ([]byte, error) {
 	u := &url.URL{
 		Scheme:   "https",
 		Host:     d.BaseURI,
 		Path:     path,
-		RawQuery: params.Get("access_token").(string),
+		RawQuery: urlP.Encode(),
 	}
 	_url := u.String()
 	paramsx, err := params.EncodeToJson()
@@ -106,6 +106,7 @@ func (d *DingTalkClient) Post(path string, params misc.Params) ([]byte, error) {
 		return nil, err
 	}
 	req, err := http.NewRequest("POST", _url, bytes.NewReader(paramsx))
+	req.Header.Set("Content-Type", "application/json")
 
 	if err != nil {
 		return nil, err
