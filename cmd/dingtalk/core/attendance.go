@@ -1,8 +1,9 @@
 package dingtalk
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
+	"net/url"
 	"os"
 	"peeka/cmd/dingtalk/client"
 	"peeka/cmd/dingtalk/misc"
@@ -17,33 +18,11 @@ var (
 	Client = client.NewClient(APPKEY, APPSECRET)
 )
 
-/**
-{
-    "result":{
-        "schedules":[
-            {
-                    "plan_id":1,
-                    "check_type":"OnDuty",
-                    "approve_id":1,
-                    "userid":"0001",
-                    "class_id":1,
-                    "class_setting_id":1,
-                    "plan_check_time":"2017-04-11 11:11:11",
-                    "group_id":1
-            }
-        ],
-        "has_more":false
-    },
-    "errmsg":"ok",
-    "errcode":0
-}
-**/
-
 type ListSchedule struct {
 	ErrMsg  string `json:"errmsg"`
 	ErrCode int    `json:"errcode"`
 	Result  struct {
-		Schedules []misc.Params
+		Schedules []misc.Data
 		HasMore   bool `json:"has_more"`
 	} `json:"result"`
 }
@@ -55,15 +34,20 @@ func init() {
 	}
 }
 
+// GetScheduleList: 返回size条结果, offset为偏移量, HasMore为false表示数据已完
 func (l *ListSchedule) GetScheduleList(workDate string, offset, size int) error {
-	params := make(misc.Params)
+	params := make(misc.Data)
+	urlParma := make(url.Values)
+	urlParma.Set("access_token", Client.AccessToken)
 	params.Set("workDate", workDate)
 	params.Set("offset", offset)
 	params.Set("size", size)
-	result, err := Client.Post("topapi/attendance/listschedule", params)
+	data, err := Client.Post("topapi/attendance/listschedule", urlParma, params)
 	if err != nil {
 		return err
 	}
-	fmt.Println(result)
+	if err := json.Unmarshal(data, l); err != nil {
+		return err
+	}
 	return nil
 }
