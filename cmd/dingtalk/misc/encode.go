@@ -4,35 +4,44 @@ import (
 	"encoding/json"
 )
 
-type Params map[string][]interface{}
+type Data map[string]interface{}
 
-func (p Params) Set(key string, value interface{}) {
-	p[key] = []interface{}{value}
-
+func (d Data) Set(key string, value interface{}) {
+	switch value.(type) {
+	case []interface{}:
+		d[key] = value.([]interface{})
+		return
+	}
+	d[key] = value
 }
 
-func (p Params) Add(key string, value interface{}) {
-	p[key] = append(p[key], value)
+func (d Data) Add(key string, value interface{}) {
 }
 
-func (p Params) Del(key string) {
-	delete(p, key)
+func (d Data) Del(key string) {
+	delete(d, key)
 }
 
-func (p Params) Get(key string) interface{} {
-	if p == nil {
+func (d Data) Get(key string) interface{} {
+	if d == nil {
 		return nil
 	}
-	if pi := p[key]; len(pi) == 0 {
+	switch d[key].(type) {
+	case []interface{}:
+		if len(d[key].([]interface{})) != 0 {
+			return d[key].([]interface{})[0]
+		}
+	}
+	if d[key] == nil {
 		return nil
 	} else {
-		return pi[0]
+		return d[key]
 	}
 }
 
 // convert map to json
-func (p Params) EncodeToJson() ([]byte, error) {
-	if res, err := json.Marshal(p); err != nil {
+func (d Data) EncodeToJson() ([]byte, error) {
+	if res, err := json.Marshal(d); err != nil {
 		return nil, err
 	} else {
 		return res, nil
