@@ -1,14 +1,22 @@
-package client
+package api
 
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"peeka/cmd/dingtalk/misc"
 	"time"
+)
+
+var (
+	APPKEY    = os.Getenv("APPKEY")
+	APPSECRET = os.Getenv("APPSECRET")
+	Client    = NewClient(APPKEY, APPSECRET)
 )
 
 type DingTalkClient struct {
@@ -46,27 +54,30 @@ func NewClient(appkey, appsecret string) *DingTalkClient {
 	dtc.BaseURI = "oapi.dingtalk.com"
 	dtc.APPKEY = appkey
 	dtc.APPSECRET = appsecret
+	accTok, err := dtc.UpdateAccessToken()
+	if err != nil {
+		log.Fatalf("获取access_token失败: %s", err.Error())
+	}
+	dtc.AccessToken = accTok
 	return dtc
 }
 
-func (d *DingTalkClient) UpdateAccessToken() error {
+func (d *DingTalkClient) UpdateAccessToken() (string, error) {
 	params := make(url.Values)
 	params.Set("appkey", d.APPKEY)
 	params.Set("appsecret", d.APPSECRET)
 	text, err := d.Get("gettoken", params)
 	if err != nil {
-		return err
+		return "", err
 	}
 	var rsp AccessTokenResponse
 	if err := json.Unmarshal(text, &rsp); err != nil {
-		return err
+		return "", err
 	}
 	if rsp.ErrCode != 0 {
-		return errors.New("Failed to get access_token")
+		return "", errors.New("Failed to get access_token")
 	}
-	d.ATR = rsp
-	d.AccessToken = rsp.AccessToken
-	return nil
+	return rsp.AccessToken, nil
 }
 
 func (d *DingTalkClient) Get(path string, params url.Values) ([]byte, error) {

@@ -3,14 +3,14 @@ package main
 import (
 	"fmt"
 	"log"
-	dingtalk "peeka/cmd/dingtalk/core"
+	"peeka/cmd/dingtalk/api"
 )
 
 func main() {
-	l := new(dingtalk.ListRecord)
-	err := l.GetListRecordDetails([]string{"156339501623369564"}, "2019-10-28 08:00:00", "2019-10-29 00:00:00")
+	client := api.Client
+	result, err := client.GetListRecord([]string{"156339501623369564"}, "2019-10-28 08:00:00", "2019-10-29 00:00:00", 0, 50)
 	if err != nil {
 		log.Println(err)
 	}
-	fmt.Println(l)
+	fmt.Println(result)
 }

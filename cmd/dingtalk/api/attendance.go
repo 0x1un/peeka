@@ -1,21 +1,9 @@
-package dingtalk
+package api
 
 import (
 	"encoding/json"
-	"log"
 	"net/url"
-	"os"
-	"peeka/cmd/dingtalk/client"
 	"peeka/cmd/dingtalk/misc"
-)
-
-var (
-	APPKEY    = os.Getenv("APPKEY")
-	APPSECRET = os.Getenv("APPSECRET")
-)
-
-var (
-	Client = client.NewClient(APPKEY, APPSECRET)
 )
 
 type ListSchedule struct {
@@ -49,54 +37,74 @@ type ListRecord struct {
 		UserLongitude  float64 `json:"userLongitude"`
 		PlanId         int64   `json:"planId"`
 		GroupId        int64   `json:"groupId"`
-		UserAccuracy   int     `json:"userAccuracy"`
+		UserAccuracy   float64 `json:"userAccuracy"`
 		UserCheckTime  int64   `json:"userCheckTime"`
 		UserLatitude   float64 `json:"userLatitude"`
 		ProcInstId     string  `json:"procInstId"`
 	}
 }
 
-func init() {
-	if err := Client.UpdateAccessToken(); err != nil {
-		log.Println(err)
-		return
-	}
-}
-
 // GetScheduleList: 返回size条结果, offset为偏移量, HasMore为false表示数据已完
 // workDate: 只取年月日部分
 // offset: 第一次为0, 之后传入offset+size
-func (l *ListSchedule) GetScheduleList(workDate string, offset, size int) error {
+func (c *DingTalkClient) GetScheduleList(workDate string, offset, size int) (*ListSchedule, error) {
 	params := make(misc.Data)
 	urlParma := make(url.Values)
-	urlParma.Set("access_token", Client.AccessToken)
+	urlParma.Set("access_token", c.AccessToken)
 	params.Set("workDate", workDate)
 	params.Set("offset", offset)
 	params.Set("size", size)
 	data, err := Client.Post("topapi/attendance/listschedule", urlParma, params)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	if err := json.Unmarshal(data, l); err != nil {
-		return err
+	res := new(ListSchedule)
+	if err := json.Unmarshal(data, res); err != nil {
+		return nil, err
 	}
-	return nil
+	return res, nil
 }
 
-// GetListRecord: 获取打卡记录, 传入N个用户id查询打卡详情
-func (l *ListRecord) GetListRecordDetails(uids []string, chkDateFrom, chkDateTo string) error {
+// GetListRecordDetails: 获取打卡详情, 传入N个用户到数组
+func (c *DingTalkClient) GetListRecordDetails(uids []string, chkDateFrom, chkDateTo string) (*ListRecord, error) {
 	urlParam := make(url.Values)
-	urlParam.Set("access_token", Client.AccessToken)
+	urlParam.Set("access_token", c.AccessToken)
 	params := make(misc.Data)
 	params.Set("userIds", uids)
 	params.Set("checkDateFrom", chkDateFrom)
 	params.Set("checkDateTo", chkDateTo)
 	data, err := Client.Post("attendance/listRecord", urlParam, params)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	if err := json.Unmarshal(data, l); err != nil {
-		return err
+	res := new(ListRecord)
+	if err := json.Unmarshal(data, res); err != nil {
+		return nil, err
 	}
-	return nil
+	return res, nil
+}
+
+// GetListRecord: 获取打卡结果, limit <= 50, offset初始为0, 后续offset=(offset+limit)
+func (c *DingTalkClient) GetListRecord(uids []string, workDateFrom, workDateTo string, offset, limit int) (*ListRecord, error) {
+	urlParam := make(url.Values)
+	urlParam.Set("access_token", c.AccessToken)
+	params := make(misc.Data)
+	params.Set("userIdList", uids)
+	params.Set("workDateFrom", workDateFrom)
+	params.Set("workDateTo", workDateTo)
+	params.Set("offset", offset)
+	params.Set("limit", limit)
+	data, err := Client.Post("attendance/list", urlParam, params)
+	if err != nil {
+		return nil, err
+	}
+	res := new(ListRecord)
+	if err := json.Unmarshal(data, res); err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func (c *DingTalkClient) GetLeaveapproveDuration(uid string, fromDate, toDate string) {
+
 }
