@@ -7,22 +7,30 @@ import (
 )
 
 type ListSchedule struct {
-	ErrMsg  string `json:"errmsg"`
 	ErrCode int    `json:"errcode"`
+	ErrMsg  string `json:"errmsg"`
 	Result  struct {
-		Schedules []misc.Data
 		HasMore   bool `json:"has_more"`
+		Schedules []misc.Data
 	} `json:"result"`
 }
 
 // ListRecord: 打卡记录
 type ListRecord struct {
-	ErrMsg       string `json:"errmsg"`
 	ErrCode      int    `json:"errcode"`
+	ErrMsg       string `json:"errmsg"`
 	RecordResult []struct {
-		IsLegal        string  `json:"isLegal"`
 		BaseCheckTime  int64   `json:"baseCheckTime"`
 		Id             int64   `json:"id"`
+		WorkDate       int64   `json:"workDate"`
+		PlanCheckTime  int64   `json:"planCheckTime"`
+		PlanId         int64   `json:"planId"`
+		GroupId        int64   `json:"groupId"`
+		UserCheckTime  int64   `json:"userCheckTime"`
+		UserLongitude  float64 `json:"userLongitude"`
+		UserAccuracy   float64 `json:"userAccuracy"`
+		UserLatitude   float64 `json:"userLatitude"`
+		IsLegal        string  `json:"isLegal"`
 		UserAddress    string  `json:"userAddress"`
 		UserId         string  `json:"userId"`
 		CheckType      string  `json:"checkType"`
@@ -30,16 +38,8 @@ type ListRecord struct {
 		DeviceId       string  `json:"deviceId"`
 		CorpId         string  `json:"corpId"`
 		SourceType     string  `json:"sourceType"`
-		WorkDate       int64   `json:"workDate"`
-		PlanCheckTime  int64   `json:"planCheckTime"`
 		LocationMethod string  `json:"locationMethod"`
 		LocationResult string  `json:"locationResult"`
-		UserLongitude  float64 `json:"userLongitude"`
-		PlanId         int64   `json:"planId"`
-		GroupId        int64   `json:"groupId"`
-		UserAccuracy   float64 `json:"userAccuracy"`
-		UserCheckTime  int64   `json:"userCheckTime"`
-		UserLatitude   float64 `json:"userLatitude"`
 		ProcInstId     string  `json:"procInstId"`
 	}
 }

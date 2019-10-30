@@ -36,9 +36,9 @@ type Response struct {
 
 type AccessTokenResponse struct {
 	ErrCode     int    `json:"errcode"`
+	ExpiresIn   int    `json:"expires_in"`
 	AccessToken string `json:"access_token"`
 	ErrMsg      string `json:"errmsg"`
-	ExpiresIn   int    `json:"expires_in"`
 }
 
 type Requests interface {
