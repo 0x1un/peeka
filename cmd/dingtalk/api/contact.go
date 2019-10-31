@@ -1,9 +1,12 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"net/url"
+	"peeka/cmd/dingtalk/misc"
 	"strconv"
 )
 
@@ -12,13 +15,15 @@ type UserId struct {
 	Userid string `json:"userid"`
 }
 
+type UserList struct {
+	Userid string `json:"userid"`
+	Name   string `json:"name"`
+}
+
 type UsersOfDepartment struct {
 	ErrResponse
-	HasMore  bool `json:"hasMore"`
-	Userlist []struct {
-		Userid string `json:"userid"`
-		Name   string `json:"name"`
-	} `json:"userlist"`
+	HasMore  bool       `json:"hasMore"`
+	Userlist []UserList `json:"userlist"`
 }
 
 type UserInfoDetails struct {
@@ -124,4 +129,28 @@ func (c *DingTalkClient) GetUsersOfDepartmentByDepId(depId, offset, size, order 
 		return nil, err
 	}
 	return users, nil
+}
+
+// 将用户信息写入到文件方便以后快速读取
+func (c *UsersOfDepartment) WriteToCacheFile() error {
+	if c.ErrCode != 0 {
+		return errors.New("获取部门用户失败!")
+	}
+	buffer := new(bytes.Buffer)
+	for _, v := range c.Userlist {
+		buffer.WriteString(v.Name + ":" + v.Userid + "\n")
+	}
+	err := ioutil.WriteFile(".users", buffer.Bytes(), 0666)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// 从cache文件中读取用户信息
+func (c *UsersOfDepartment) ReadFromCacheFile() error {
+	if !misc.IsExist(".users") {
+		return errors.New(".users文件没有找到")
+	}
+	return nil
 }

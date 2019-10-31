@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"peeka/cmd/dingtalk/api"
+	"peeka/cmd/dingtalk/misc"
 )
 
 // 2749481918775803
@@ -25,5 +26,6 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
-	fmt.Println(result)
+	result.WriteToCacheFile()
+	fmt.Println(misc.IsExist("./.usersx"))
 }

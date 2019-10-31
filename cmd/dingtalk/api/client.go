@@ -24,6 +24,7 @@ type ErrResponse struct {
 	ErrMsg  string `json:"errmsg"`
 }
 
+// api主结构, 所有的api都围绕此结构体
 type DingTalkClient struct {
 	Client      *http.Client
 	APPKEY      string
@@ -41,8 +42,9 @@ type Response struct {
 
 type AccessTokenResponse struct {
 	ErrResponse
-	ExpiresIn   int    `json:"expires_in"`
+	ExpiresIn   int64  `json:"expires_in"`
 	AccessToken string `json:"access_token"`
+	CreatedAt   int64
 }
 
 type Requests interface {
@@ -53,7 +55,7 @@ type Requests interface {
 func NewClient(appkey, appsecret string) *DingTalkClient {
 	dtc := new(DingTalkClient)
 	dtc.Client = &http.Client{
-		Timeout: 10 * time.Second,
+		Timeout: 20 * time.Second,
 	}
 	dtc.BaseURI = "oapi.dingtalk.com"
 	dtc.APPKEY = appkey
@@ -65,6 +67,15 @@ func NewClient(appkey, appsecret string) *DingTalkClient {
 	dtc.AccessToken = accTok
 	return dtc
 }
+
+type Expirable interface {
+	ExpiresTime() int64
+	CreatedTime() int64
+}
+
+func (a *AccessTokenResponse) ExpiresTime() int64 { return a.ExpiresIn }
+
+func (a *AccessTokenResponse) CreatedTime() int64 { return a.CreatedAt }
 
 func (d *DingTalkClient) UpdateAccessToken() (string, error) {
 	params := make(url.Values)
