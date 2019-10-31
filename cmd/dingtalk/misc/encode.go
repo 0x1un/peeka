@@ -47,3 +47,7 @@ func (d Data) EncodeToJson() ([]byte, error) {
 		return res, nil
 	}
 }
+
+func (d Data) EncodeToURLParameter() string {
+	return ""
+}

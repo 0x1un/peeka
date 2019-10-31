@@ -19,6 +19,11 @@ var (
 	Client    = NewClient(APPKEY, APPSECRET)
 )
 
+type ErrResponse struct {
+	ErrCode int    `json:"errcode"`
+	ErrMsg  string `json:"errmsg"`
+}
+
 type DingTalkClient struct {
 	Client      *http.Client
 	APPKEY      string
@@ -35,10 +40,9 @@ type Response struct {
 }
 
 type AccessTokenResponse struct {
-	ErrCode     int    `json:"errcode"`
+	ErrResponse
 	ExpiresIn   int    `json:"expires_in"`
 	AccessToken string `json:"access_token"`
-	ErrMsg      string `json:"errmsg"`
 }
 
 type Requests interface {

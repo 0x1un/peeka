@@ -2,14 +2,14 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"net/url"
 	"peeka/cmd/dingtalk/misc"
 )
 
 type ListSchedule struct {
-	ErrCode int    `json:"errcode"`
-	ErrMsg  string `json:"errmsg"`
-	Result  struct {
+	ErrResponse
+	Result struct {
 		HasMore   bool `json:"has_more"`
 		Schedules []misc.Data
 	} `json:"result"`
@@ -17,8 +17,7 @@ type ListSchedule struct {
 
 // ListRecord: 打卡记录
 type ListRecord struct {
-	ErrCode      int    `json:"errcode"`
-	ErrMsg       string `json:"errmsg"`
+	ErrResponse
 	RecordResult []struct {
 		BaseCheckTime  int64   `json:"baseCheckTime"`
 		Id             int64   `json:"id"`
@@ -44,10 +43,22 @@ type ListRecord struct {
 	}
 }
 
+// 考勤组摘要结构
+type AttdGroup struct {
+	ErrResponse
+	Result []struct {
+		Name string `json:"Name"`
+		Id   int    `json:"id"`
+	} `json:"result"`
+}
+
 // GetScheduleList: 返回size条结果, offset为偏移量, HasMore为false表示数据已完
 // workDate: 只取年月日部分
 // offset: 第一次为0, 之后传入offset+size
 func (c *DingTalkClient) GetScheduleList(workDate string, offset, size int) (*ListSchedule, error) {
+	if size > 200 {
+		return nil, errors.New("size不能大于200!")
+	}
 	params := make(misc.Data)
 	urlParma := make(url.Values)
 	urlParma.Set("access_token", c.AccessToken)
@@ -67,6 +78,9 @@ func (c *DingTalkClient) GetScheduleList(workDate string, offset, size int) (*Li
 
 // GetListRecordDetails: 获取打卡详情, 传入N个用户到数组
 func (c *DingTalkClient) GetListRecordDetails(uids []string, chkDateFrom, chkDateTo string) (*ListRecord, error) {
+	if len(uids) == 0 {
+		return nil, errors.New("请传入userid!")
+	}
 	urlParam := make(url.Values)
 	urlParam.Set("access_token", c.AccessToken)
 	params := make(misc.Data)
@@ -86,6 +100,9 @@ func (c *DingTalkClient) GetListRecordDetails(uids []string, chkDateFrom, chkDat
 
 // GetListRecord: 获取打卡结果, limit <= 50, offset初始为0, 后续offset=(offset+limit)
 func (c *DingTalkClient) GetListRecord(uids []string, workDateFrom, workDateTo string, offset, limit int) (*ListRecord, error) {
+	if len(uids) == 0 {
+		return nil, errors.New("请传入userid!")
+	}
 	urlParam := make(url.Values)
 	urlParam.Set("access_token", c.AccessToken)
 	params := make(misc.Data)
@@ -105,6 +122,30 @@ func (c *DingTalkClient) GetListRecord(uids []string, workDateFrom, workDateTo s
 	return res, nil
 }
 
+// 获取请假时长
 func (c *DingTalkClient) GetLeaveapproveDuration(uid string, fromDate, toDate string) {
 
+}
+
+// 搜索考勤组摘要
+// 按考勤组名称模糊搜索，获取考勤组的摘要信息
+// opUid为操作者的userid
+func (c *DingTalkClient) GetAttendanceGroup(opUid, groupName string) (*AttdGroup, error) {
+	if opUid == "" || groupName == "" {
+		return nil, errors.New("请传入有效的op_user_id或group name")
+	}
+	urlParam := make(url.Values)
+	urlParam.Set("access_token", c.AccessToken)
+	params := make(misc.Data)
+	params.Set("op_user_id", opUid)
+	params.Set("group_name", groupName)
+	data, err := Client.Post("topapi/attendance/group/search", urlParam, params)
+	if err != nil {
+		return nil, err
+	}
+	res := new(AttdGroup)
+	if err := json.Unmarshal(data, res); err != nil {
+		return nil, err
+	}
+	return res, nil
 }
