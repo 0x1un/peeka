@@ -27,6 +27,9 @@ func NetworkTrafficAction(url string, timeRange, sleepTime int) chromedp.Tasks {
 	case 24:
 		twentyFourHours := `#tab_1 > div.time-quick-range > div:nth-child(4) > ul > li:nth-child(8) > a`
 		tasks = append(tasks, chromedp.Click(twentyFourHours, chromedp.NodeVisible))
+	case 15:
+		m15 := `#tab_1 > div.time-quick-range > div:nth-child(4) > ul > li:nth-child(2) > a`
+		tasks = append(tasks, chromedp.Click(m15, chromedp.NodeVisible))
 	}
 	tasks = append(tasks, chromedp.Sleep(time.Duration(sleepTime)*time.Millisecond))
 	// tasks = append(tasks, chromedp.WaitVisible(`#graph_full`, chromedp.ByID))

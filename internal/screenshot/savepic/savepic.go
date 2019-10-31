@@ -20,7 +20,7 @@ func SaveImg(ctx context.Context, urls []map[string]string, dir string, sleepTim
 	count := 0
 	for _, x := range urls {
 		for k, v := range x {
-			if err := chromedp.Run(ctx, action.NetworkTrafficAction(v, 24, sleepTime), util.FullScreenshot(100, &buf)); err != nil {
+			if err := chromedp.Run(ctx, action.NetworkTrafficAction(v, 15, sleepTime), util.FullScreenshot(100, &buf)); err != nil {
 				return nil, 0, err
 			}
 			count++
