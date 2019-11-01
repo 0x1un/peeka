@@ -19,6 +19,11 @@ var (
 	Client    = NewClient(APPKEY, APPSECRET)
 )
 
+type Expirable interface {
+	ExpiresTime() int64
+	CreatedTime() int64
+}
+
 type ErrResponse struct {
 	ErrCode int    `json:"errcode"`
 	ErrMsg  string `json:"errmsg"`
@@ -52,6 +57,10 @@ type Requests interface {
 	Post()
 }
 
+func (a *AccessTokenResponse) ExpiresTime() int64 { return a.ExpiresIn }
+
+func (a *AccessTokenResponse) CreatedTime() int64 { return a.CreatedAt }
+
 func NewClient(appkey, appsecret string) *DingTalkClient {
 	dtc := new(DingTalkClient)
 	dtc.Client = &http.Client{
@@ -67,15 +76,6 @@ func NewClient(appkey, appsecret string) *DingTalkClient {
 	dtc.AccessToken = accTok
 	return dtc
 }
-
-type Expirable interface {
-	ExpiresTime() int64
-	CreatedTime() int64
-}
-
-func (a *AccessTokenResponse) ExpiresTime() int64 { return a.ExpiresIn }
-
-func (a *AccessTokenResponse) CreatedTime() int64 { return a.CreatedAt }
 
 func (d *DingTalkClient) UpdateAccessToken() (string, error) {
 	params := make(url.Values)
