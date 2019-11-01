@@ -14,26 +14,29 @@ import (
 )
 
 // MergeImage: 合并图片, 合并规则由(x,y)决定
-func MergeImage(grids []*gim.Grid, x, y int, filename string) error {
+// TODO: 返回参数需要添加一个string, 作用为返回图床链接
+func MergeImage(grids []*gim.Grid, x, y int, filename string) (string, error) {
 	if len(grids) == 0 {
-		return errors.New("No pictures..")
+		return "", errors.New("No pictures..")
 	}
 
 	rgba, err := gim.New(grids, x, y).Merge()
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// save the output to jpg or png
 	file, err := os.Create(filename + ".png")
 	if err != nil {
-		return err
+		return "", err
 	}
 	err = png.Encode(file, rgba)
+	// TODO: 这里需要将图片上传到图床
+	fname, err := PostFileToStorage(file.Name())
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return fname, nil
 }
 
 // FullScreenshot: 截取完整图片

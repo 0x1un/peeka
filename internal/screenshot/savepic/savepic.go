@@ -13,14 +13,14 @@ import (
 )
 
 // SaveImg: 访问线路监控图并保存
-func SaveImg(ctx context.Context, urls []map[string]string, dir string, sleepTime int, buf []byte) ([]*gim.Grid, int, error) {
+func SaveImg(ctx context.Context, urls []map[string]string, dir, timeRange string, sleepTime int, quality int64, buf []byte) ([]*gim.Grid, int, error) {
 	util.CreateDirIfNotExist(dir)
 	var file string
 	var grids []*gim.Grid
 	count := 0
 	for _, x := range urls {
 		for k, v := range x {
-			if err := chromedp.Run(ctx, action.NetworkTrafficAction(v, 15, sleepTime), util.FullScreenshot(100, &buf)); err != nil {
+			if err := chromedp.Run(ctx, action.NetworkTrafficAction(v, timeRange, sleepTime), util.FullScreenshot(quality, &buf)); err != nil {
 				return nil, 0, err
 			}
 			count++

@@ -49,6 +49,8 @@ type Argv struct {
 	Help         bool
 	Version      bool
 	TotalTimeOut int
+	TimeRange    string
+	Quality      int64
 }
 
 // ParamParser: 解析参数
@@ -63,6 +65,8 @@ func ParamParser(version string) Argv {
 	flag.StringVar(&a.Host, "s", "127.0.0.1", "zabbix服务器地址 `serverName`")
 	flag.IntVar(&a.Timeout, "t", 1000, "单个页面抓取等待时间(ms) `waitTime`")
 	flag.IntVar(&a.TotalTimeOut, "t-time", 60, "程序总超时时间, =waitTime*抓取数量(s) `TotalTimeOut`")
+	flag.Int64Var(&a.Quality, "q", 100, "抓取的图片质量 `Quality`")
+	flag.StringVar(&a.TimeRange, "time-range", "24h", "设置抓取的时间范围(1h,3h,6h,12h,24h,15m,30m) `TimeRange`")
 	flag.Usage = man.Usage
 	flag.Parse()
 	goos := runtime.GOOS
