@@ -61,7 +61,7 @@ func ParamParser(version string) Argv {
 	flag.BoolVar(&a.Version, "v", false, "版本信息 `version`")
 	flag.StringVar(&a.Username, "u", "Admin", "zabbix的用户名 `username`")
 	flag.StringVar(&a.Password, "p", "zabbix", "zabbix的用户密码 `password`")
-	flag.StringVar(&a.Config, "c", "./screenshot_config.json", "配置文件地址 `config`")
+	flag.StringVar(&a.Config, "c", "./config.json", "配置文件地址 `config`")
 	flag.StringVar(&a.Host, "s", "127.0.0.1", "zabbix服务器地址 `serverName`")
 	flag.IntVar(&a.Timeout, "t", 1000, "单个页面抓取等待时间(ms) `waitTime`")
 	flag.IntVar(&a.TotalTimeOut, "t-time", 60, "程序总超时时间, =waitTime*抓取数量(s) `TotalTimeOut`")
