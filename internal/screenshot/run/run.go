@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	version = "0.0.3"
+	version = "0.0.4"
 	options []chromedp.ExecAllocatorOption
 	ctx     context.Context
 	cancel  context.CancelFunc
@@ -46,7 +46,7 @@ func init() {
 }
 
 // Run: 总调用接口
-func Run() {
+func Run() map[string]string {
 	var buf []byte
 	ctx, cancel = chromedp.NewExecAllocator(ctx, options...)
 	ctx, cancel = context.WithTimeout(ctx, time.Second*time.Duration(a.TotalTimeOut))
@@ -64,15 +64,20 @@ func Run() {
 		os.Exit(0)
 	}
 
+	remoteFiles := make(map[string]string)
 	for k, v := range util.LoadJsonConfigToMap(a.Config) {
-		grids, num, err := savepic.SaveImg(ctx, v, k, a.Timeout, buf)
+		// grids, num, err := savepic.SaveImg(ctx, v, k, a.Timeout, buf)
+		grids, num, err := savepic.SaveImg(ctx, v, k, a.TimeRange, a.Timeout, a.Quality, buf)
 		if err != nil {
 			log.Println(err)
 		}
-		if err := util.MergeImage(grids, 1, num, k); err != nil {
+		fname, err := util.MergeImage(grids, 1, num, k)
+		if err != nil {
 			cancel()
 			os.Exit(0)
 		}
+		remoteFiles[k] = "http://q0a7c7rr4.bkt.clouddn.com/" + fname
 	}
 	log.Println("抓取完成, 进入相关目录查看!")
+	return remoteFiles
 }
