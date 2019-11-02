@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/chromedp/chromedp"
+	"github.com/subosito/gotenv"
 )
 
 var (
@@ -25,9 +26,10 @@ var a util.Argv
 
 // init: 初始化一些必要配置
 func init() {
+	gotenv.Load()
 	a = util.ParamParser(version)
 	if len(os.Args) < 2 {
-		fmt.Println("或许你需要指定些什么参数?")
+		fmt.Println("或许你需要指定些什么参数? -h 查看帮助")
 		os.Exit(0)
 	}
 
@@ -37,9 +39,10 @@ func init() {
 	}
 	ctx = context.Background()
 	options = []chromedp.ExecAllocatorOption{
-		// chromedp.Flag("headless", false),
-		chromedp.Flag("hide-scrollbars", false),
+		chromedp.Flag("headless", false),
+		// chromedp.Flag("hide-scrollbars", false),
 		chromedp.Flag("mute-audio", false),
+		chromedp.Flag("ignore-certificate-errors", true),
 		chromedp.UserAgent(`Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36`),
 	}
 	options = append(chromedp.DefaultExecAllocatorOptions[:], options...)
@@ -67,6 +70,7 @@ func Run() map[string]string {
 	remoteFiles := make(map[string]string)
 	for k, v := range util.LoadJsonConfigToMap(a.Config) {
 		// grids, num, err := savepic.SaveImg(ctx, v, k, a.Timeout, buf)
+		// func SaveImg(ctx context.Context, urls []map[string]string, dir, timeRange string, sleepTime int, quality int64, buf []byte) ([]*gim.Grid, int, error) {
 		grids, num, err := savepic.SaveImg(ctx, v, k, a.TimeRange, a.Timeout, a.Quality, buf)
 		if err != nil {
 			log.Println(err)

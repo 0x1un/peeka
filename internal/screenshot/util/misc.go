@@ -13,6 +13,12 @@ import (
 	"syscall"
 )
 
+type LoginInfo struct {
+	Url      string
+	Username string
+	Password string
+}
+
 // LoadJsonConfigToMap: 加载配置文件到map
 func LoadJsonConfigToMap(filename string) map[string][]map[string]string {
 	data, err := ioutil.ReadFile(filename)
@@ -41,16 +47,16 @@ func CreateDirIfNotExist(dir string) {
 
 // Argv: 参数解析结构体
 type Argv struct {
+	Timeout      int
+	TotalTimeOut int
+	Quality      int64
+	Help         bool
+	Version      bool
 	Username     string
 	Password     string
 	Config       string
-	Timeout      int
 	Host         string
-	Help         bool
-	Version      bool
-	TotalTimeOut int
 	TimeRange    string
-	Quality      int64
 }
 
 // ParamParser: 解析参数

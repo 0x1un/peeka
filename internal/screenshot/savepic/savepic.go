@@ -2,11 +2,14 @@ package savepic
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"path"
 	"peeka/internal/screenshot/action"
 	"peeka/internal/screenshot/util"
+	"strings"
+	"time"
 
 	"github.com/chromedp/chromedp"
 	gim "github.com/ozankasikci/go-image-merge"
@@ -20,6 +23,13 @@ func SaveImg(ctx context.Context, urls []map[string]string, dir, timeRange strin
 	count := 0
 	for _, x := range urls {
 		for k, v := range x {
+			if strings.Contains(k, "深信服") {
+				fmt.Println(v)
+				if err := chromedp.Run(ctx, action.SangforLogin(v, "admin1", "goodluck@123", 3000), util.FullScreenshot(quality, &buf)); err != nil {
+					return nil, 0, err
+				}
+				time.Sleep(time.Duration(5) * time.Second)
+			}
 			if err := chromedp.Run(ctx, action.NetworkTrafficAction(v, timeRange, sleepTime), util.FullScreenshot(quality, &buf)); err != nil {
 				return nil, 0, err
 			}

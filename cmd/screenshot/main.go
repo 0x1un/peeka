@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"peeka/internal/chatbot"
+	"fmt"
 	"peeka/internal/screenshot/run"
 )
 
@@ -14,5 +14,6 @@ func main() {
 		buffer.WriteString("**" + k + "**\n\n\n")
 		buffer.WriteString("![" + k + "]" + "(" + v + ")\n")
 	}
-	chatbot.Run("ALL", buffer.String())
+	fmt.Println(buffer.String())
+	// chatbot.Run("ALL", buffer.String())
 }

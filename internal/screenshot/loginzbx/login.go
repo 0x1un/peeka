@@ -46,6 +46,7 @@ func post(url string, reader *bytes.Reader) []byte {
 	return respBytes
 }
 
+// 验证账户密码
 func ValidateAccount(url, username, password string) bool {
 	d := Data{
 		JsonRpc: "2.0",

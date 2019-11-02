@@ -13,19 +13,13 @@ import (
 	"github.com/qiniu/api.v7/v7/storage"
 )
 
-const (
-	ACCESSKEY = `GSDdabqaln9Vgou3Hhhu7B5cUDerny5f5HgKAR4W`
-	SECRETKEY = `TnTWGN_KG_2UGlrhveMzS4ottAQHEZ0GWLhbdvV0`
-	BUCKET    = `peeka`
-)
-
 func PostFileToStorage(filename string) (string, error) {
 	localFile := filename
 	key := ComputeFileSHA(filename)
 	putPolicy := storage.PutPolicy{
-		Scope: BUCKET,
+		Scope: os.Getenv("BUCKET"),
 	}
-	mac := qbox.NewMac(ACCESSKEY, SECRETKEY)
+	mac := qbox.NewMac(os.Getenv("ACCESSKEY"), os.Getenv("SECRETKEY"))
 	upToken := putPolicy.UploadToken(mac)
 
 	cfg := storage.Config{}
