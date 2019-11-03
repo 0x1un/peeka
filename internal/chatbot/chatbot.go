@@ -10,20 +10,20 @@ import (
 )
 
 var (
-	baseURL = `https://oapi.dingtalk.com/robot/send?access_token=` + os.Getenv("ROBOT_TOKEN")
+	baseURL = `https://oapi.dingtalk.com/robot/send?access_token=`
 )
 
-func Run(user, text string) {
+func Run(token, user, text string) {
 	fileName := time.Now().Format("20060102") + ".dingding.log"
 	logFile, _ := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0766)
 	defer logFile.Close()
 	Log := log.New(logFile, "[Info]", log.Ldate|log.Ltime) // log.Ldate|log.Ltime|log.Lshortfile
 	Log.Println("开始发送消息!")
-	SendMsg(user, text, Log)
+	SendMsg(token, user, text, Log)
 }
 
 //发送消息到钉钉
-func SendMsg(user, text string, Log *log.Logger) {
+func SendMsg(token, user, text string, Log *log.Logger) {
 	jsonstring := `{
      "msgtype": "markdown",
      "markdown": {"title":"皮卡丘!",
@@ -37,7 +37,7 @@ func SendMsg(user, text string, Log *log.Logger) {
     }
  }`
 	reader := bytes.NewReader([]byte(jsonstring))
-	resp := Post(baseURL, reader)
+	resp := Post(baseURL+token, reader)
 	Log.SetPrefix("[Info]")
 	Log.Printf("消息发送完成,服务器返回内容：%s", string(resp))
 }
