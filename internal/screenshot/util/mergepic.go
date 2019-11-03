@@ -32,7 +32,8 @@ func MergeImage(grids []*gim.Grid, x, y int, filename string) (string, error) {
 	}
 	err = png.Encode(file, rgba)
 	// TODO: 这里需要将图片上传到图床
-	fname, err := PostFileToStorage(file.Name())
+	// fname, err := PostFileToStorage(file.Name())
+	fname := ""
 	if err != nil {
 		return "", err
 	}

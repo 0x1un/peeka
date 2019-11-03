@@ -2,13 +2,13 @@ package run
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"peeka/internal/screenshot/action"
 	"peeka/internal/screenshot/loginzbx"
 	"peeka/internal/screenshot/savepic"
 	"peeka/internal/screenshot/util"
+	"strconv"
 	"time"
 
 	"github.com/chromedp/chromedp"
@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	version = "0.0.4"
+	version = "0.0.5"
 	options []chromedp.ExecAllocatorOption
 	ctx     context.Context
 	cancel  context.CancelFunc
@@ -27,10 +27,25 @@ var a util.Argv
 // init: 初始化一些必要配置
 func init() {
 	gotenv.Load()
-	a = util.ParamParser(version)
 	if len(os.Args) < 2 {
-		fmt.Println("或许你需要指定些什么参数? -h 查看帮助")
-		os.Exit(0)
+		// fmt.Println("或许你需要指定些什么参数? -h 查看帮助")
+		// os.Exit(0)
+		sltime, _ := strconv.Atoi(os.Getenv("SANGFOR_LOGIN_TIME"))
+		sptime, _ := strconv.Atoi(os.Getenv("SANGFOR_PAGE_TIME"))
+		a = util.Argv{
+			Username:         os.Getenv("ZABBIX_USERNAME"),
+			Password:         os.Getenv("ZABBIX_PASSWORD"),
+			Host:             os.Getenv("ZABBIX_SERVER"),
+			Config:           "./config.json",
+			Timeout:          1000,
+			TotalTimeOut:     120,
+			Quality:          100,
+			TimeRange:        "24h",
+			SangforLoginTime: sltime,
+			SangforPageTime:  sptime,
+		}
+	} else {
+		a = util.ParamParser(version)
 	}
 
 	if !loginzbx.ValidateAccount(a.Host, a.Username, a.Password) {
@@ -69,9 +84,7 @@ func Run() map[string]string {
 
 	remoteFiles := make(map[string]string)
 	for k, v := range util.LoadJsonConfigToMap(a.Config) {
-		// grids, num, err := savepic.SaveImg(ctx, v, k, a.Timeout, buf)
-		// func SaveImg(ctx context.Context, urls []map[string]string, dir, timeRange string, sleepTime int, quality int64, buf []byte) ([]*gim.Grid, int, error) {
-		grids, num, err := savepic.SaveImg(ctx, v, k, a.TimeRange, a.Timeout, a.Quality, buf)
+		grids, num, err := savepic.SaveImg(ctx, v, k, a.TimeRange, a.Timeout, a.Quality, a.SangforLoginTime, a.SangforPageTime, buf)
 		if err != nil {
 			log.Println(err)
 		}

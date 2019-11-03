@@ -14,7 +14,7 @@ import (
 )
 
 // SaveImg: 访问线路监控图并保存
-func SaveImg(ctx context.Context, urls []map[string]string, dir, timeRange string, sleepTime int, quality int64, buf []byte) ([]*gim.Grid, int, error) {
+func SaveImg(ctx context.Context, urls []map[string]string, dir, timeRange string, sleepTime int, quality int64, sltime, sptime int, buf []byte) ([]*gim.Grid, int, error) {
 	util.CreateDirIfNotExist(dir)
 	var file string
 	var grids []*gim.Grid
@@ -22,7 +22,7 @@ func SaveImg(ctx context.Context, urls []map[string]string, dir, timeRange strin
 	for _, x := range urls {
 		for k, v := range x {
 			if strings.Contains(k, "深信服") {
-				if err := chromedp.Run(ctx, action.SangforLogin(v, "admin1", "goodluck@123"), util.FullScreenshot(quality, &buf)); err != nil {
+				if err := chromedp.Run(ctx, action.SangforLogin(v, "admin1", "goodluck@123", sltime, sptime), util.FullScreenshot(quality, &buf)); err != nil {
 					return nil, 0, err
 				}
 			} else {

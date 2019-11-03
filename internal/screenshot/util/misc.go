@@ -47,16 +47,18 @@ func CreateDirIfNotExist(dir string) {
 
 // Argv: 参数解析结构体
 type Argv struct {
-	Timeout      int
-	TotalTimeOut int
-	Quality      int64
-	Help         bool
-	Version      bool
-	Username     string
-	Password     string
-	Config       string
-	Host         string
-	TimeRange    string
+	Timeout          int
+	TotalTimeOut     int
+	SangforLoginTime int
+	SangforPageTime  int
+	Quality          int64
+	Help             bool
+	Version          bool
+	Username         string
+	Password         string
+	Config           string
+	Host             string
+	TimeRange        string
 }
 
 // ParamParser: 解析参数
@@ -70,7 +72,9 @@ func ParamParser(version string) Argv {
 	flag.StringVar(&a.Config, "c", "./config.json", "配置文件地址 `config`")
 	flag.StringVar(&a.Host, "s", "127.0.0.1", "zabbix服务器地址 `serverName`")
 	flag.IntVar(&a.Timeout, "t", 1000, "单个页面抓取等待时间(ms) `waitTime`")
-	flag.IntVar(&a.TotalTimeOut, "t-time", 60, "程序总超时时间, =waitTime*抓取数量(s) `TotalTimeOut`")
+	flag.IntVar(&a.TotalTimeOut, "t-time", 120, "程序总超时时间, =waitTime*抓取数量(s) `TotalTimeOut`")
+	flag.IntVar(&a.SangforLoginTime, "loginTime", 3, "深信服登录等待时间, unit(s) `sanfor-login-time`")
+	flag.IntVar(&a.SangforPageTime, "pageTime", 20, "深信服进入页面等待加载时间, unit(s) `sanfor-page-time`")
 	flag.Int64Var(&a.Quality, "q", 100, "抓取的图片质量 `Quality`")
 	flag.StringVar(&a.TimeRange, "time-range", "24h", "设置抓取的时间范围(1h,3h,6h,12h,24h,15m,30m) `TimeRange`")
 	flag.Usage = man.Usage
