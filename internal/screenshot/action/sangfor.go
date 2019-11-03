@@ -2,17 +2,18 @@ package action
 
 import (
 	"github.com/chromedp/chromedp"
+
+	"time"
 )
 
-func SangforLogin(url, username, password string, sleepTime int) chromedp.Tasks {
+func SangforLogin(url, username, password string) chromedp.Tasks {
 	return chromedp.Tasks{
 		chromedp.Navigate(url),
 		chromedp.SendKeys(`#user`, username, chromedp.ByID),
 		chromedp.SendKeys(`#password`, password, chromedp.ByID),
+		chromedp.Sleep(3 * time.Second),
 		chromedp.Click(`#button`, chromedp.ByID),
-		// chromedp.Click(`#ext-gen167`, chromedp.NodeVisible),
+		chromedp.Sleep(10 * time.Second),
+		chromedp.WaitVisible(`#ext-gen148`, chromedp.ByID),
 	}
 }
-
-// https://10.6.2.5/index.php?name_jpgraph_antispam=747905443
-//https://10.6.2.6/index.php?name_jpgraph_antispam=709812881
