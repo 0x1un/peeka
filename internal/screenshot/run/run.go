@@ -54,11 +54,13 @@ func init() {
 	}
 	ctx = context.Background()
 	options = []chromedp.ExecAllocatorOption{
-		chromedp.Flag("headless", false),
+		// chromedp.Flag("headless", false),
 		// chromedp.Flag("hide-scrollbars", false),
+		chromedp.Flag("disable-gpu", true),
 		chromedp.Flag("mute-audio", false),
 		chromedp.Flag("ignore-certificate-errors", true),
 		chromedp.UserAgent(`Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36`),
+		chromedp.WindowSize(1366, 768),
 	}
 	options = append(chromedp.DefaultExecAllocatorOptions[:], options...)
 }
