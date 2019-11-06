@@ -22,7 +22,7 @@ func SaveImg(ctx context.Context, urls []map[string]string, dir, timeRange strin
 	for _, x := range urls {
 		for k, v := range x {
 			if strings.Contains(k, "深信服") {
-				if err := chromedp.Run(ctx, action.SangforLogin(v, "admin1", "goodluck@123", sltime, sptime), util.FullScreenshot(quality, &buf)); err != nil {
+				if err := chromedp.Run(ctx, action.SangforLogin(v, "admin1", "goodluck@123", sltime, sptime), util.ElementScreenshot(`#ext-gen3`, &buf)); err != nil {
 					return nil, 0, err
 				}
 			} else {

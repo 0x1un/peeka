@@ -30,10 +30,11 @@ func MergeImage(grids []*gim.Grid, x, y int, filename string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	err = png.Encode(file, rgba)
+	if err := png.Encode(file, rgba); err != nil {
+		return "", err
+	}
 	// TODO: 这里需要将图片上传到图床
-	// fname, err := PostFileToStorage(file.Name())
-	fname := ""
+	fname, err := PostFileToStorage(file.Name())
 	if err != nil {
 		return "", err
 	}
@@ -48,6 +49,7 @@ func FullScreenshot(quality int64, res *[]byte) chromedp.Tasks {
 			if err != nil {
 				return err
 			}
+			// fmt.Println(contentSize.X, contentSize.Y, contentSize.Width, contentSize.Height)
 
 			width, height := int64(math.Ceil(contentSize.Width)), int64(math.Ceil(contentSize.Height))
 
@@ -76,5 +78,12 @@ func FullScreenshot(quality int64, res *[]byte) chromedp.Tasks {
 			}
 			return nil
 		}),
+	}
+}
+
+func ElementScreenshot(sel string, res *[]byte) chromedp.Tasks {
+	return chromedp.Tasks{
+		chromedp.WaitVisible(sel, chromedp.ByID),
+		chromedp.Screenshot(sel, res, chromedp.NodeVisible, chromedp.ByID),
 	}
 }

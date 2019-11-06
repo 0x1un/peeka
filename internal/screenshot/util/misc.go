@@ -11,6 +11,8 @@ import (
 	"peeka/internal/screenshot/man"
 	"runtime"
 	"syscall"
+
+	"github.com/fogleman/gg"
 )
 
 type LoginInfo struct {
@@ -103,4 +105,27 @@ func SignalReading(cancel func()) {
 		cancel()
 		os.Exit(0)
 	}()
+}
+
+func SetTextImg(text, img string, width, height int) error {
+	im, err := gg.LoadImage(img)
+	if err != nil {
+		return err
+	}
+
+	dc := gg.NewContext(width, height)
+	dc.SetRGB(1, 1, 1)
+	dc.Clear()
+	dc.SetRGB(0, 0, 0)
+	if err := dc.LoadFontFace("./simkai.ttf", 96); err != nil {
+		return err
+	}
+	dc.DrawRoundedRectangle(0, 0, 512, 512, 0)
+	dc.DrawImage(im, 0, 0)
+
+	// dc.DrawStringAnchored("阿里-电信深信服", WIDTH/3, HEIGHT/28, 0.5, 0.5)
+	dc.DrawStringAnchored("Hello, world!", float64(width/2), float64(height/2), 0.5, 0.5)
+	dc.Clip()
+	dc.SavePNG("out.png")
+	return nil
 }
