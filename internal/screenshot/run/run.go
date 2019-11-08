@@ -32,15 +32,18 @@ func init() {
 		// os.Exit(0)
 		sltime, _ := strconv.Atoi(os.Getenv("SANGFOR_LOGIN_TIME"))
 		sptime, _ := strconv.Atoi(os.Getenv("SANGFOR_PAGE_TIME"))
+		timeout, _ := strconv.Atoi(os.Getenv("TIMEOUT"))
+		totaltimeout, _ := strconv.Atoi(os.Getenv("TOTALTIMEOUT"))
+		quality, _ := strconv.Atoi(os.Getenv("QUALITY"))
 		a = util.Argv{
 			Username:         os.Getenv("ZABBIX_USERNAME"),
 			Password:         os.Getenv("ZABBIX_PASSWORD"),
 			Host:             os.Getenv("ZABBIX_SERVER"),
 			Config:           "./config.json",
-			Timeout:          1000,
-			TotalTimeOut:     120,
-			Quality:          100,
-			TimeRange:        "24h",
+			Timeout:          timeout,
+			TotalTimeOut:     totaltimeout,
+			Quality:          int64(quality),
+			TimeRange:        os.Getenv("TIMERANGE"),
 			SangforLoginTime: sltime,
 			SangforPageTime:  sptime,
 		}

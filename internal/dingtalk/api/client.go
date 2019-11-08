@@ -9,14 +9,17 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"peeka/cmd/dingtalk/misc"
+	"peeka/internal/dingtalk/misc"
 	"time"
+
+	"github.com/allegro/bigcache"
 )
 
 var (
 	APPKEY    = os.Getenv("APPKEY")
 	APPSECRET = os.Getenv("APPSECRET")
 	Client    = NewClient(APPKEY, APPSECRET)
+	Cache, _  = bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
 )
 
 type Expirable interface {
@@ -52,15 +55,6 @@ type AccessTokenResponse struct {
 	CreatedAt   int64
 }
 
-type Requests interface {
-	Get()
-	Post()
-}
-
-func (a *AccessTokenResponse) ExpiresTime() int64 { return a.ExpiresIn }
-
-func (a *AccessTokenResponse) CreatedTime() int64 { return a.CreatedAt }
-
 func NewClient(appkey, appsecret string) *DingTalkClient {
 	dtc := new(DingTalkClient)
 	dtc.Client = &http.Client{
@@ -75,6 +69,10 @@ func NewClient(appkey, appsecret string) *DingTalkClient {
 	}
 	dtc.AccessToken = accTok
 	return dtc
+}
+
+func (a *AccessTokenResponse) writeInCache() {
+	// TODO: 将token存入数据库
 }
 
 func (d *DingTalkClient) UpdateAccessToken() (string, error) {
@@ -93,6 +91,11 @@ func (d *DingTalkClient) UpdateAccessToken() (string, error) {
 		return "", errors.New("Failed to get access_token")
 	}
 	return rsp.AccessToken, nil
+}
+
+func isValidateToken() error {
+	// TODO: 从数据库中读取Token并验证是否过期
+	return nil
 }
 
 func (d *DingTalkClient) Get(path string, params url.Values) ([]byte, error) {

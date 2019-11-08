@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/url"
-	"peeka/cmd/dingtalk/misc"
+	"peeka/internal/dingtalk/misc"
 )
 
 type ListSchedule struct {

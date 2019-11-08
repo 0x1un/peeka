@@ -1,3 +1,5 @@
 ast/
 .config.json
 .env
+cmd/screenshot/screenshot_.7z
+cmd/screenshot/screenshot_

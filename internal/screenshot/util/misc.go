@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"peeka/internal/screenshot/man"
 	"runtime"
+	"strings"
 	"syscall"
 
 	"github.com/fogleman/gg"
@@ -61,6 +62,7 @@ type Argv struct {
 	Config           string
 	Host             string
 	TimeRange        string
+	EnableRobot      string
 }
 
 // ParamParser: 解析参数
@@ -79,6 +81,7 @@ func ParamParser(version string) Argv {
 	flag.IntVar(&a.SangforPageTime, "pageTime", 20, "深信服进入页面等待加载时间, unit(s) `sanfor-page-time`")
 	flag.Int64Var(&a.Quality, "q", 100, "抓取的图片质量 `Quality`")
 	flag.StringVar(&a.TimeRange, "time-range", "24h", "设置抓取的时间范围(1h,3h,6h,12h,24h,15m,30m) `TimeRange`")
+	flag.StringVar(&a.EnableRobot, "robot", "0", "发送到机器人, 默认0不发送, 1为发送 `enable-robot`")
 	flag.Usage = man.Usage
 	flag.Parse()
 	goos := runtime.GOOS
@@ -114,18 +117,19 @@ func SetTextImg(text, img string, width, height int) error {
 	}
 
 	dc := gg.NewContext(width, height)
-	dc.SetRGB(1, 1, 1)
-	dc.Clear()
-	dc.SetRGB(0, 0, 0)
-	if err := dc.LoadFontFace("./simkai.ttf", 96); err != nil {
+	dc.SetRGB(139, 0, 0)
+	if err := dc.LoadFontFace("./simkai.ttf", 20); err != nil {
 		return err
 	}
 	dc.DrawRoundedRectangle(0, 0, 512, 512, 0)
 	dc.DrawImage(im, 0, 0)
 
-	// dc.DrawStringAnchored("阿里-电信深信服", WIDTH/3, HEIGHT/28, 0.5, 0.5)
-	dc.DrawStringAnchored("Hello, world!", float64(width/2), float64(height/2), 0.5, 0.5)
+	if strings.Contains(img, "深信") {
+		dc.DrawStringAnchored(text, float64(width/3), float64(height/28), 0.5, 0.5)
+	} else {
+		dc.DrawStringAnchored(text, float64(width/8), float64(height/5), 0.5, 0.5)
+	}
 	dc.Clip()
-	dc.SavePNG("out.png")
+	dc.SavePNG(img)
 	return nil
 }

@@ -35,6 +35,9 @@ func SaveImg(ctx context.Context, urls []map[string]string, dir, timeRange strin
 			if err := ioutil.WriteFile(file, buf, 0644); err != nil {
 				return nil, 0, err
 			}
+			if err := util.SetTextImg(k, dir+"/"+k+".png", 1366, 884); err != nil {
+				return nil, 0, err
+			}
 			grids = append(grids, &gim.Grid{ImageFilePath: file})
 			log.Printf("写入文件: %s\n", file)
 		}
