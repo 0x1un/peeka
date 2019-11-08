@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"net/url"
-	"peeka/cmd/dingtalk/misc"
+	"peeka/internal/dingtalk/misc"
+	"time"
 )
 
 type ListSchedule struct {
@@ -55,14 +56,15 @@ type AttdGroup struct {
 // GetScheduleList: 返回size条结果, offset为偏移量, HasMore为false表示数据已完
 // workDate: 只取年月日部分
 // offset: 第一次为0, 之后传入offset+size
-func (c *DingTalkClient) GetScheduleList(workDate string, offset, size int) (*ListSchedule, error) {
+func (c *DingTalkClient) GetScheduleList(workDate time.Time, offset, size int) (*ListSchedule, error) {
 	if size > 200 {
 		return nil, errors.New("size不能大于200!")
 	}
+	wrkDate := workDate.Format("2006-01-02")
 	params := make(misc.Data)
 	urlParma := make(url.Values)
 	urlParma.Set("access_token", c.AccessToken)
-	params.Set("workDate", workDate)
+	params.Set("workDate", wrkDate)
 	params.Set("offset", offset)
 	params.Set("size", size)
 	data, err := Client.Post("topapi/attendance/listschedule", urlParma, params)

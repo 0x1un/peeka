@@ -1,13 +1,13 @@
 package api
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/url"
-	"peeka/cmd/dingtalk/misc"
+	"peeka/pkg/common"
 	"strconv"
+	"strings"
 )
 
 type UserId struct {
@@ -131,26 +131,19 @@ func (c *DingTalkClient) GetUsersOfDepartmentByDepId(depId, offset, size, order 
 	return users, nil
 }
 
-// 将用户信息写入到文件方便以后快速读取
-func (c *UsersOfDepartment) WriteToCacheFile() error {
-	if c.ErrCode != 0 {
-		return errors.New("获取部门用户失败!")
-	}
-	buffer := new(bytes.Buffer)
-	for _, v := range c.Userlist {
-		buffer.WriteString(v.Name + ":" + v.Userid + "\n")
-	}
-	err := ioutil.WriteFile(".users", buffer.Bytes(), 0666)
+func isFileChanged(filename string) bool {
+	hash, err := common.ComputeFileSHA(filename)
+	// 如果文件不存在，返回true让其继续访问api并创建缓存文件
 	if err != nil {
-		return err
+		return true
 	}
-	return nil
-}
-
-// 从cache文件中读取用户信息
-func (c *UsersOfDepartment) ReadFromCacheFile() error {
-	if !misc.IsExist(".users") {
-		return errors.New(".users文件没有找到")
+	data, err := ioutil.ReadFile(".cache")
+	if err != nil {
+		return false
 	}
-	return nil
+	// 文件是否改动
+	if strings.Compare(hash, string(data)) == 0 {
+		return false
+	}
+	return true
 }

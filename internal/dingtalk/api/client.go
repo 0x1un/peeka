@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"peeka/cmd/dingtalk/misc"
+	"peeka/internal/dingtalk/misc"
 	"time"
 )
 
@@ -19,11 +19,6 @@ var (
 	Client    = NewClient(APPKEY, APPSECRET)
 )
 
-type Expirable interface {
-	ExpiresTime() int64
-	CreatedTime() int64
-}
-
 type ErrResponse struct {
 	ErrCode int    `json:"errcode"`
 	ErrMsg  string `json:"errmsg"`
@@ -32,11 +27,11 @@ type ErrResponse struct {
 // api主结构, 所有的api都围绕此结构体
 type DingTalkClient struct {
 	Client      *http.Client
+	ATR         AccessTokenResponse // access_token所有返回值
 	APPKEY      string
 	APPSECRET   string
 	BaseURI     string
 	AccessToken string
-	ATR         AccessTokenResponse // access_token所有返回值
 }
 
 type Response struct {
@@ -47,19 +42,56 @@ type Response struct {
 
 type AccessTokenResponse struct {
 	ErrResponse
-	ExpiresIn   int64  `json:"expires_in"`
 	AccessToken string `json:"access_token"`
-	CreatedAt   int64
+	Expires     int    `json:"expires_in"`
+	Created     int64
 }
 
-type Requests interface {
-	Get()
-	Post()
+func (d *DingTalkClient) UpdateAccessToken() error {
+	var rsp AccessTokenResponse
+	if rp, err := ValidateToken(); err == nil {
+		d.AccessToken = rp.AccessToken
+		return nil
+	}
+	params := make(url.Values)
+	params.Set("appkey", d.APPKEY)
+	params.Set("appsecret", d.APPSECRET)
+	text, err := d.Get("gettoken", params)
+	if err != nil {
+		return err
+	}
+	if rsp.ErrCode != 0 {
+		return errors.New("Failed to get access_token")
+	}
+	rsp.Created = time.Now().Unix()
+	if err := json.Unmarshal(text, &rsp); err != nil {
+		return err
+	}
+	data, err := json.Marshal(rsp)
+	if err != nil {
+		return err
+	}
+	if err := ioutil.WriteFile(".token.json", data, 0666); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (a *AccessTokenResponse) ExpiresTime() int64 { return a.ExpiresIn }
-
-func (a *AccessTokenResponse) CreatedTime() int64 { return a.CreatedAt }
+func ValidateToken() (*AccessTokenResponse, error) {
+	jsonstr, err := ioutil.ReadFile(".token.json")
+	if err != nil {
+		return nil, err
+	}
+	var rsp AccessTokenResponse
+	err = json.Unmarshal(jsonstr, &rsp)
+	if err != nil {
+		return nil, err
+	}
+	if (time.Now().Unix() - int64(rsp.Expires)) >= rsp.Created {
+		return nil, errors.New("token已经过期了")
+	}
+	return &rsp, nil
+}
 
 func NewClient(appkey, appsecret string) *DingTalkClient {
 	dtc := new(DingTalkClient)
@@ -69,30 +101,11 @@ func NewClient(appkey, appsecret string) *DingTalkClient {
 	dtc.BaseURI = "oapi.dingtalk.com"
 	dtc.APPKEY = appkey
 	dtc.APPSECRET = appsecret
-	accTok, err := dtc.UpdateAccessToken()
+	err := dtc.UpdateAccessToken()
 	if err != nil {
 		log.Fatalf("获取access_token失败: %s", err.Error())
 	}
-	dtc.AccessToken = accTok
 	return dtc
-}
-
-func (d *DingTalkClient) UpdateAccessToken() (string, error) {
-	params := make(url.Values)
-	params.Set("appkey", d.APPKEY)
-	params.Set("appsecret", d.APPSECRET)
-	text, err := d.Get("gettoken", params)
-	if err != nil {
-		return "", err
-	}
-	var rsp AccessTokenResponse
-	if err := json.Unmarshal(text, &rsp); err != nil {
-		return "", err
-	}
-	if rsp.ErrCode != 0 {
-		return "", errors.New("Failed to get access_token")
-	}
-	return rsp.AccessToken, nil
 }
 
 func (d *DingTalkClient) Get(path string, params url.Values) ([]byte, error) {
