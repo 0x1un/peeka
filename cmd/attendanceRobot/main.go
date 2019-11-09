@@ -5,10 +5,15 @@ import (
 	"fmt"
 	"os"
 	"peeka/cmd/attendanceRobot/db"
+	"peeka/internal/chatbot"
 	"peeka/internal/dingtalk/api"
 	"peeka/internal/dingtalk/misc"
 	"strconv"
 	"time"
+
+	"sort"
+
+	"bytes"
 
 	"github.com/jinzhu/gorm"
 )
@@ -16,12 +21,19 @@ import (
 var (
 	client = api.NewClient(os.Getenv("APPKEY"), os.Getenv("APPSECRET"))
 	// allRecord = new([]misc.Data)
-	CURRENT_TIME = time.Now().Format("2006-01-02")
-	allRecord    = new([]api.Schedule)
-	conn         = db.Conn
+	// CURRENT_TIME = time.Now().Format("2006-01-02")
+	GET_TIME    = time.Now().AddDate(0, 0, 1)
+	DATE_FORMAT = `2006-01-02`
+	allRecord   = new([]api.Schedule)
+	conn        = db.Conn
 )
 
 func main() {
+	chatbot.Run(os.Getenv("ROBOT_TOKEN"), "", Begin())
+	defer conn.Close()
+}
+
+func Begin() string {
 	collections := make(misc.Data)
 	collections.Set("227270072", "08:00:00-17:00:00") // A
 	collections.Set("361950158", "07:00:00-17:00:00") // A1
@@ -35,18 +47,32 @@ func main() {
 
 	workUsers := Calling()
 	depUsers := GetDepUsers(conn)
-
+	total := make(misc.TData)
 	for _, v1 := range workUsers {
 		for _, v2 := range *depUsers {
 			if v1.Userid == v2.Userid {
 				classid := strconv.Itoa(v1.ClassID)
-				ret := collections.Get(classid)
-				fmt.Println(v2.Name + "上班时间" + ret.(string))
+				ret := collections.Get(classid).(string)
+				total.Add(ret, v2.Name)
 			}
 		}
 	}
-
-	defer conn.Close()
+	keys := make([]string, 0, len(total))
+	for m := range total {
+		keys = append(keys, m)
+	}
+	sort.Strings(keys)
+	var buffer bytes.Buffer
+	var content string
+	title := fmt.Sprintf("# %s日IT到岗时间:\n\n", GET_TIME.Format(DATE_FORMAT))
+	buffer.WriteString(title)
+	for _, date := range keys {
+		fmt.Println(date, total[date])
+		content = fmt.Sprintf("> %s< %s\n\n", date, total[date])
+		buffer.WriteString(content)
+	}
+	buffer.WriteString("合理联系该时间段在线的IT, 勿打扰休假人员!")
+	return buffer.String()
 }
 
 func Calling() []api.Schedule {
@@ -63,11 +89,6 @@ func Calling() []api.Schedule {
 		panic(err)
 	}
 	return *result
-}
-
-func GetNameByUID(uid string) string {
-
-	return ""
 }
 
 func GetAllUserInDepartment(depid, offset, size, order string) error {
@@ -116,7 +137,7 @@ func InsertRecord(conn *gorm.DB, data interface{}) error {
 	handler := conn.Begin()
 	if value, ok := data.(api.Schedule); ok {
 		handler = handler.Table("atten_list")
-		value.CreatedAt = CURRENT_TIME
+		value.CreatedAt = GET_TIME.Format(DATE_FORMAT)
 		err = handler.Create(value).Error
 		if err != nil {
 			handler.Rollback()
@@ -125,7 +146,7 @@ func InsertRecord(conn *gorm.DB, data interface{}) error {
 	}
 	if value, ok := data.(api.UserList); ok {
 		handler = handler.Table("dep_users")
-		value.CreatedAt = CURRENT_TIME
+		value.CreatedAt = GET_TIME.Format(DATE_FORMAT)
 		err = handler.Create(value).Error
 		if err != nil {
 			handler.Rollback()
@@ -139,7 +160,7 @@ func InsertRecord(conn *gorm.DB, data interface{}) error {
 func QueryRecord(conn *gorm.DB, conditions []string, records *[]api.Schedule) error {
 	// err := conn.Table("atten_list").Where(conditions).Find(records).Error
 	// err := conn.Table("atten_list").Where(must).Or(conditions).Find(records).Error
-	err := conn.Table("atten_list").Where("checktype = ? AND createdat = ? AND userid in (?)", "OnDuty", CURRENT_TIME, conditions).Find(records).Error
+	err := conn.Table("atten_list").Where("checktype = ? AND createdat = ? AND userid in (?)", "OnDuty", GET_TIME.Format(DATE_FORMAT), conditions).Find(records).Error
 	if err != nil {
 		return err
 	}
@@ -149,7 +170,7 @@ func QueryRecord(conn *gorm.DB, conditions []string, records *[]api.Schedule) er
 func GetDepUsers(conn *gorm.DB) *[]api.UserList {
 	var err error
 	users := new([]api.UserList)
-	err = conn.Table("dep_users").Select("name,userid").Where("createdat = ? AND name in (?)", CURRENT_TIME, []string{"张军", "邹一", "唐顺", "唐建", "王彪", "李耀", "高远", "刘环", "陈浩", "尹升俊", "赵鹏辉"}).Scan(users).Error
+	err = conn.Table("dep_users").Select("name,userid").Where("createdat = ? AND name in (?)", GET_TIME.Format(DATE_FORMAT), []string{"张军", "邹一", "唐顺", "唐建", "王彪", "李耀", "高远", "刘环", "陈浩", "尹升俊", "赵鹏辉"}).Scan(users).Error
 	if err != nil {
 		panic(err)
 	}
@@ -178,7 +199,7 @@ func FilterUsers(conn *gorm.DB, users map[string]interface{}) (*[]api.Schedule, 
 		return nil, err
 	}
 	if len(*allRecord) == 0 {
-		err = GetAllAttendanceResult(time.Now(), 0, 1)
+		err = GetAllAttendanceResult(GET_TIME, 0, 1)
 		count++
 		if count == 3 {
 			return nil, errors.New(fmt.Sprintf("查询数据库失败, 结果为空\n"))
