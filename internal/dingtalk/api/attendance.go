@@ -18,7 +18,7 @@ type Schedule struct {
 	PlanCheckTime  string `json:"plan_check_time" gorm:"column:planchecktime"`
 	GroupID        int    `json:"group_id" gorm:"column:groupid"`
 	CreatedAt      string `gorm:"column:createdat"`
-	UserName       string
+	UserName       string `gorm:"-"`
 }
 
 type ListSchedule struct {

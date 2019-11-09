@@ -15,7 +15,10 @@ func (d Data) Set(key string, value interface{}) {
 	d[key] = value
 }
 
-func (d Data) Add(key string, value interface{}) {
+type TData map[string][]string
+
+func (d TData) Add(key, value string) {
+	d[key] = append(d[key], value)
 }
 
 func (d Data) Del(key string) {
