@@ -16,8 +16,9 @@ type UserId struct {
 }
 
 type UserList struct {
-	Userid string `json:"userid"`
-	Name   string `json:"name"`
+	Userid    string `json:"userid" gorm:"column:userid"`
+	Name      string `json:"name" gorm:"column:name"`
+	CreatedAt string `gorm:"column:createdat"`
 }
 
 type UsersOfDepartment struct {
