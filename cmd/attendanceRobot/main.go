@@ -29,8 +29,11 @@ var (
 func main() {
 	result := Begin()
 	fmt.Println(result)
-	chatbot.Run(os.Getenv("ROBOT_TOKEN_GP_OP"), "", result)
-	chatbot.Run(os.Getenv("ROBOT_TOKEN_ALI"), "", result)
+	tokens := []string{
+		os.Getenv("ROBOT_TOKEN_ALI"),
+		os.Getenv("ROBOT_TOKEN_GP_OP"),
+	}
+	chatbot.Send(tokens, nil, false, result)
 	defer conn.Close()
 }
 
@@ -65,7 +68,7 @@ func Begin() string {
 	sort.Strings(keys)
 	var buffer bytes.Buffer
 	var content string
-	title := fmt.Sprintf("# %s日IT到岗时间(测试忽略!):\n\n", GET_TIME.Format(DATE_FORMAT))
+	title := fmt.Sprintf("# %s日IT到岗时间\n\n", GET_TIME.Format(DATE_FORMAT))
 	buffer.WriteString(title)
 	for _, date := range keys {
 		content = fmt.Sprintf("> %s :%s\n\n", date, total[date])
