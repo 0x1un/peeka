@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -8,12 +9,9 @@ import (
 	"peeka/internal/chatbot"
 	"peeka/internal/dingtalk/api"
 	"peeka/internal/dingtalk/misc"
+	"sort"
 	"strconv"
 	"time"
-
-	"sort"
-
-	"bytes"
 
 	"github.com/jinzhu/gorm"
 )
@@ -22,14 +20,16 @@ var (
 	client = api.NewClient(os.Getenv("APPKEY"), os.Getenv("APPSECRET"))
 	// allRecord = new([]misc.Data)
 	// CURRENT_TIME = time.Now().Format("2006-01-02")
-	GET_TIME    = time.Now().AddDate(0, 0, 1)
+	GET_TIME    = time.Now().AddDate(0, 0, 4)
 	DATE_FORMAT = `2006-01-02`
 	allRecord   = new([]api.Schedule)
 	conn        = db.Conn
 )
 
 func main() {
-	chatbot.Run(os.Getenv("ROBOT_TOKEN"), "", Begin())
+	result := Begin()
+	fmt.Println(result)
+	chatbot.Run(os.Getenv("ROBOT_TOKEN"), "", result)
 	defer conn.Close()
 }
 
@@ -67,8 +67,7 @@ func Begin() string {
 	title := fmt.Sprintf("# %s日IT到岗时间:\n\n", GET_TIME.Format(DATE_FORMAT))
 	buffer.WriteString(title)
 	for _, date := range keys {
-		fmt.Println(date, total[date])
-		content = fmt.Sprintf("> %s< %s\n\n", date, total[date])
+		content = fmt.Sprintf("> %s :%s\n\n", date, total[date])
 		buffer.WriteString(content)
 	}
 	buffer.WriteString("合理联系该时间段在线的IT, 勿打扰休假人员!")
@@ -89,47 +88,6 @@ func Calling() []api.Schedule {
 		panic(err)
 	}
 	return *result
-}
-
-func GetAllUserInDepartment(depid, offset, size, order string) error {
-	users, err := client.GetUsersOfDepartmentByDepId(depid, offset, size, order)
-	if err != nil {
-		return err
-	}
-	if users.ErrCode != 0 {
-		return errors.New(fmt.Sprintf("部门用户获取失败: %d:%s", users.ErrCode, users.ErrMsg))
-	}
-	for _, user := range users.Userlist {
-		if err := InsertRecord(conn, user); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// 获取所有的考勤信息存入数据库atten_list表中
-func GetAllAttendanceResult(date time.Time, offset, size int) error {
-	schedules, err := client.GetScheduleList(date, offset, size)
-	if err != nil {
-		return err
-	}
-	if schedules.ErrCode != 0 {
-		return errors.New(fmt.Sprintf("获取考勤列表失败%d:%s", schedules.ErrCode, schedules.ErrMsg))
-	}
-	// *allRecord = append(*allRecord, schedules.Result.Schedules[0])
-	hasMore := schedules.Result.HasMore
-	if hasMore {
-		for _, atten := range schedules.Result.Schedules {
-			err := InsertRecord(conn, atten)
-			if err != nil {
-				return err
-			}
-			// *allRecord = append(*allRecord, atten)
-		}
-		offset = offset + size
-		return GetAllAttendanceResult(date, offset, size)
-	}
-	return nil
 }
 
 func InsertRecord(conn *gorm.DB, data interface{}) error {
@@ -207,4 +165,45 @@ func FilterUsers(conn *gorm.DB, users map[string]interface{}) (*[]api.Schedule, 
 		return FilterUsers(conn, users)
 	}
 	return allRecord, nil
+}
+
+func GetAllUserInDepartment(depid, offset, size, order string) error {
+	users, err := client.GetUsersOfDepartmentByDepId(depid, offset, size, order)
+	if err != nil {
+		return err
+	}
+	if users.ErrCode != 0 {
+		return errors.New(fmt.Sprintf("部门用户获取失败: %d:%s", users.ErrCode, users.ErrMsg))
+	}
+	for _, user := range users.Userlist {
+		if err := InsertRecord(conn, user); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// 获取所有的考勤信息存入数据库atten_list表中
+func GetAllAttendanceResult(date time.Time, offset, size int) error {
+	schedules, err := client.GetScheduleList(date, offset, size)
+	if err != nil {
+		return err
+	}
+	if schedules.ErrCode != 0 {
+		return errors.New(fmt.Sprintf("获取考勤列表失败%d:%s", schedules.ErrCode, schedules.ErrMsg))
+	}
+	// *allRecord = append(*allRecord, schedules.Result.Schedules[0])
+	hasMore := schedules.Result.HasMore
+	if hasMore {
+		for _, atten := range schedules.Result.Schedules {
+			err := InsertRecord(conn, atten)
+			if err != nil {
+				return err
+			}
+			// *allRecord = append(*allRecord, atten)
+		}
+		offset = offset + size
+		return GetAllAttendanceResult(date, offset, size)
+	}
+	return nil
 }

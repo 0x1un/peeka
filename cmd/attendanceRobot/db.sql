@@ -1,3 +1,22 @@
-create table if not exists atten_list (id integer primary key,planid int not null,checktype text not null, approveid integer,userid text not null,classid integer not null,classsettingid integer not null,planchecktime text not null,groupid integer not null,createdat text not null);
+CREATE DATABASE IF NOT EXISTS dingtalk;
+USE db_name;
 
-create table if not exists dep_users (id integer primary key,name text not null,userid text not null,createdat text not null);
+CREATE TABLE IF NOT EXISTS atten_list (
+	id integer PRIMARY KEY,
+	planid integer NOT NULL,
+	checktype text NOT NULL,
+	approveid integer,
+	userid text NOT NULL,
+	classid integer NOT NULL,
+	classsettingid integer NOT NULL,
+	planchecktime text NOT NULL,
+	groupid integer NOT NULL,
+	createdat text NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS dep_users (
+	id integer PRIMARY KEY,
+	name text NOT NULL,
+	userid text NOT NULL,
+	createdat text NOT NULL
+);
