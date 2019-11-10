@@ -20,7 +20,7 @@ var (
 	client = api.NewClient(os.Getenv("APPKEY"), os.Getenv("APPSECRET"))
 	// allRecord = new([]misc.Data)
 	// CURRENT_TIME = time.Now().Format("2006-01-02")
-	GET_TIME    = time.Now().AddDate(0, 0, 4)
+	GET_TIME    = time.Now().AddDate(0, 0, 0)
 	DATE_FORMAT = `2006-01-02`
 	allRecord   = new([]api.Schedule)
 	conn        = db.Conn
@@ -29,7 +29,8 @@ var (
 func main() {
 	result := Begin()
 	fmt.Println(result)
-	chatbot.Run(os.Getenv("ROBOT_TOKEN"), "", result)
+	chatbot.Run(os.Getenv("ROBOT_TOKEN_GP_OP"), "", result)
+	chatbot.Run(os.Getenv("ROBOT_TOKEN_ALI"), "", result)
 	defer conn.Close()
 }
 
@@ -64,13 +65,13 @@ func Begin() string {
 	sort.Strings(keys)
 	var buffer bytes.Buffer
 	var content string
-	title := fmt.Sprintf("# %s日IT到岗时间:\n\n", GET_TIME.Format(DATE_FORMAT))
+	title := fmt.Sprintf("# %s日IT到岗时间(测试忽略!):\n\n", GET_TIME.Format(DATE_FORMAT))
 	buffer.WriteString(title)
 	for _, date := range keys {
 		content = fmt.Sprintf("> %s :%s\n\n", date, total[date])
 		buffer.WriteString(content)
 	}
-	buffer.WriteString("合理联系该时间段在线的IT, 勿打扰休假人员!")
+	buffer.WriteString("**注: 合理联系该时间段在线的IT, 勿打扰休假人员!**")
 	return buffer.String()
 }
 
