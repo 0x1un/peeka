@@ -3,3 +3,4 @@ ast/
 .env
 cmd/screenshot/screenshot_.7z
 cmd/screenshot/screenshot_
+.token.json
