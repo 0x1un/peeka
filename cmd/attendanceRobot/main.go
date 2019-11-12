@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"errors"
+	"flag"
 	"fmt"
 	"os"
 	"peeka/cmd/attendanceRobot/db"
@@ -14,6 +15,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/subosito/gotenv"
 )
 
 var (
@@ -27,13 +29,22 @@ var (
 )
 
 func main() {
-	result := Begin()
-	fmt.Println(result)
+	robot := flag.Bool("robot", false, "是否发送到钉钉机器人")
+	whichDay := flag.Int("day", 0, "以当前时间为基准向前/向后推多少天")
+	flag.Parse()
+	if *whichDay != 0 {
+		GET_TIME = time.Now().AddDate(0, 0, *whichDay)
+	}
+	gotenv.Load()
 	tokens := []string{
 		os.Getenv("ROBOT_TOKEN_ALI"),
 		os.Getenv("ROBOT_TOKEN_GP_OP"),
 	}
-	chatbot.Send(tokens, nil, false, result)
+	result := Begin()
+	fmt.Println(result)
+	if *robot {
+		chatbot.Send(tokens, nil, false, result)
+	}
 	defer conn.Close()
 }
 
@@ -120,8 +131,6 @@ func InsertRecord(conn *gorm.DB, data interface{}) error {
 }
 
 func QueryRecord(conn *gorm.DB, conditions []string, records *[]api.Schedule) error {
-	// err := conn.Table("atten_list").Where(conditions).Find(records).Error
-	// err := conn.Table("atten_list").Where(must).Or(conditions).Find(records).Error
 	err := conn.Table("atten_list").Where("checktype = ? AND createdat = ? AND userid in (?)", "OnDuty", GET_TIME.Format(DATE_FORMAT), conditions).Find(records).Error
 	if err != nil {
 		return err
@@ -152,7 +161,7 @@ func FilterUsers(conn *gorm.DB, users map[string]interface{}) (*[]api.Schedule, 
 	var err error
 	var conditions []string // 传入userid列表
 	allRecord = new([]api.Schedule)
-	count := 0
+	count := 0 // 如果重试次数达到3次，直接返回错误!
 	for _, uid := range users {
 		conditions = append(conditions, uid.(string))
 	}
@@ -160,7 +169,8 @@ func FilterUsers(conn *gorm.DB, users map[string]interface{}) (*[]api.Schedule, 
 	if err != nil {
 		return nil, err
 	}
-	if len(*allRecord) == 0 {
+	// 每天上班人数至少4人，少于4人api或查询方式肯定有问题! 有待时间的考验就先写死了
+	if len(*allRecord) < 4 {
 		err = GetAllAttendanceResult(GET_TIME, 0, 1)
 		count++
 		if count == 3 {
