@@ -24,16 +24,6 @@ type ErrResponse struct {
 	ErrMsg  string `json:"errmsg"`
 }
 
-// api主结构, 所有的api都围绕此结构体
-type DingTalkClient struct {
-	Client      *http.Client
-	ATR         AccessTokenResponse // access_token所有返回值
-	APPKEY      string
-	APPSECRET   string
-	BaseURI     string
-	AccessToken string
-}
-
 type Response struct {
 	StatusCode int
 	Text       []byte
@@ -45,6 +35,17 @@ type AccessTokenResponse struct {
 	AccessToken string `json:"access_token"`
 	Expires     int    `json:"expires_in"`
 	Created     int64
+}
+
+// api主结构, 所有的api都围绕此结构体
+type DingTalkClient struct {
+	Client      *http.Client
+	Parameters  url.Values
+	Data        misc.Data
+	APPKEY      string
+	APPSECRET   string
+	BaseURI     string
+	AccessToken string
 }
 
 func (d *DingTalkClient) UpdateAccessToken() error {
@@ -77,6 +78,22 @@ func (d *DingTalkClient) UpdateAccessToken() error {
 	return nil
 }
 
+func NewClient(appkey, appsecret string) *DingTalkClient {
+	dtc := new(DingTalkClient)
+	dtc.Client = &http.Client{
+		Timeout: 20 * time.Second,
+	}
+	dtc.BaseURI = "oapi.dingtalk.com"
+	dtc.APPKEY = appkey
+	dtc.APPSECRET = appsecret
+	err := dtc.UpdateAccessToken()
+	if err != nil {
+		log.Fatalf("获取access_token失败: %s", err.Error())
+	}
+	return dtc
+}
+
+// check token from local
 func ValidateToken() (*AccessTokenResponse, error) {
 	jsonstr, err := ioutil.ReadFile(".token.json")
 	if err != nil {
@@ -91,21 +108,6 @@ func ValidateToken() (*AccessTokenResponse, error) {
 		return nil, errors.New("token已经过期了")
 	}
 	return &rsp, nil
-}
-
-func NewClient(appkey, appsecret string) *DingTalkClient {
-	dtc := new(DingTalkClient)
-	dtc.Client = &http.Client{
-		Timeout: 20 * time.Second,
-	}
-	dtc.BaseURI = "oapi.dingtalk.com"
-	dtc.APPKEY = appkey
-	dtc.APPSECRET = appsecret
-	err := dtc.UpdateAccessToken()
-	if err != nil {
-		log.Fatalf("获取access_token失败: %s", err.Error())
-	}
-	return dtc
 }
 
 func (d *DingTalkClient) Get(path string, params url.Values) ([]byte, error) {
@@ -138,6 +140,7 @@ func (d *DingTalkClient) Post(path string, urlP url.Values, params misc.Data) ([
 		Host:     d.BaseURI,
 		Path:     path,
 		RawQuery: urlP.Encode(),
+		// RawQuery: d.Parameters.Encode(),
 	}
 	_url := u.String()
 	paramsx, err := params.EncodeToJson()
