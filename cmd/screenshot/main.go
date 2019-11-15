@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"os"
+	"fmt"
 	"peeka/internal/chatbot"
 	"peeka/internal/screenshot"
 	"time"
@@ -17,10 +17,8 @@ func main() {
 		buffer.WriteString("![" + k + "]" + "(" + v + ")\n")
 	}
 	buffer.WriteString(time.Now().Format("2006-01-02 15:04:05"))
-	tokens := []string{
-		os.Getenv("ROBOT_TOKEN"),
+	if screenshot.CFG.EnableRobot {
+		chatbot.Send(screenshot.CFG.RobotTokens, screenshot.CFG.RobotAtUsers, false, buffer.String())
 	}
-	if os.Getenv("ENABLE_ROBOT") == "1" {
-		chatbot.Send(tokens, []string{}, false, buffer.String())
-	}
+	fmt.Println(buffer.String())
 }
