@@ -2,15 +2,14 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"peeka/internal/chatbot"
-	"peeka/internal/screenshot/run"
+	"peeka/internal/screenshot"
 	"time"
 )
 
 func main() {
-	urls := run.Run()
+	urls := screenshot.Run()
 	var buffer bytes.Buffer
 	buffer.WriteString("## 定时网络巡检播报!\n\n\n")
 	for k, v := range urls {
@@ -18,8 +17,10 @@ func main() {
 		buffer.WriteString("![" + k + "]" + "(" + v + ")\n")
 	}
 	buffer.WriteString(time.Now().Format("2006-01-02 15:04:05"))
-	fmt.Println(buffer.String())
+	tokens := []string{
+		os.Getenv("ROBOT_TOKEN"),
+	}
 	if os.Getenv("ENABLE_ROBOT") == "1" {
-		chatbot.Run(os.Getenv("ROBOT_TOKEN"), "ALL", buffer.String())
+		chatbot.Send(tokens, []string{}, false, buffer.String())
 	}
 }
