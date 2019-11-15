@@ -7,7 +7,7 @@ import (
 )
 
 // NetworkTrafficAction: 进入指定线路，选取指定时间内的流量状况
-func NetworkTrafficAction(url string, timeRange string, sleepTime int) chromedp.Tasks {
+func NetworkTrafficActionZBX(url string, timeRange string, sleepTime int) chromedp.Tasks {
 	var tasks chromedp.Tasks
 	tasks = append(tasks, chromedp.Navigate(url))
 	switch timeRange {
@@ -38,4 +38,15 @@ func NetworkTrafficAction(url string, timeRange string, sleepTime int) chromedp.
 	// tasks = append(tasks, chromedp.WaitVisible(`#graph_full`, chromedp.ByID))
 	tasks = append(tasks, chromedp.WaitVisible(`#graph_full`, chromedp.ByID))
 	return tasks
+}
+
+func SigninAction(loginUrl, username, password string) chromedp.Tasks {
+	return chromedp.Tasks{
+		chromedp.Navigate("http://" + loginUrl),
+		chromedp.SendKeys(`#name`, username, chromedp.ByID),
+		chromedp.SendKeys(`#password`, password, chromedp.ByID),
+		chromedp.Click(`#enter`, chromedp.NodeVisible),
+		chromedp.Click(`#sub_view > li:nth-child(1) > a`, chromedp.NodeVisible),
+		// chromedp.Sleep(time.Duration(a.timeout) * time.Second),
+	}
 }

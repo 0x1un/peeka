@@ -1,4 +1,4 @@
-package util
+package screenshot
 
 import (
 	"context"
@@ -13,7 +13,10 @@ import (
 	"github.com/qiniu/api.v7/v7/storage"
 )
 
-func PostFileToStorage(filename string) (string, error) {
+func PostFileToStorage(filename, upload string) (string, error) {
+	if upload == "0" {
+		return "", nil
+	}
 	localFile := filename
 	key := ComputeFileSHA(filename)
 	putPolicy := storage.PutPolicy{

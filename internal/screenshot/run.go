@@ -1,13 +1,11 @@
-package run
+package screenshot
 
 import (
 	"context"
 	"log"
 	"os"
 	"peeka/internal/screenshot/action"
-	"peeka/internal/screenshot/loginzbx"
-	"peeka/internal/screenshot/savepic"
-	"peeka/internal/screenshot/util"
+	"peeka/internal/screenshot/checklogin"
 	"strconv"
 	"time"
 
@@ -22,7 +20,7 @@ var (
 	cancel  context.CancelFunc
 )
 
-var a util.Argv
+var a CommandArgv
 
 // init: 初始化一些必要配置
 func init() {
@@ -35,7 +33,7 @@ func init() {
 		timeout, _ := strconv.Atoi(os.Getenv("TIMEOUT"))
 		totaltimeout, _ := strconv.Atoi(os.Getenv("TOTALTIMEOUT"))
 		quality, _ := strconv.Atoi(os.Getenv("QUALITY"))
-		a = util.Argv{
+		a = CommandArgv{
 			Username:         os.Getenv("ZABBIX_USERNAME"),
 			Password:         os.Getenv("ZABBIX_PASSWORD"),
 			Host:             os.Getenv("ZABBIX_SERVER"),
@@ -44,14 +42,15 @@ func init() {
 			TotalTimeOut:     totaltimeout,
 			Quality:          int64(quality),
 			TimeRange:        os.Getenv("TIMERANGE"),
+			IsUpload:         os.Getenv("UPLOAD_QINIU"),
 			SangforLoginTime: sltime,
 			SangforPageTime:  sptime,
 		}
 	} else {
-		a = util.ParamParser(version)
+		a = ParamParser(version)
 	}
 
-	if !loginzbx.ValidateAccount(a.Host, a.Username, a.Password) {
+	if !checklogin.ValidateAccountZBX(a.Host, a.Username, a.Password) {
 		log.Println("帐号或密码验证错误, 请重新指定账户和密码!")
 		os.Exit(0)
 	}
@@ -75,7 +74,7 @@ func Run() map[string]string {
 	ctx, cancel = context.WithTimeout(ctx, time.Second*time.Duration(a.TotalTimeOut))
 	ctx, cancel = chromedp.NewContext(ctx)
 	defer cancel()
-	util.SignalReading(cancel)
+	SignalReading(cancel)
 
 	log.Println("初始化中...")
 
@@ -88,12 +87,12 @@ func Run() map[string]string {
 	}
 
 	remoteFiles := make(map[string]string)
-	for k, v := range util.LoadJsonConfigToMap(a.Config) {
-		grids, num, err := savepic.SaveImg(ctx, v, k, a.TimeRange, a.Timeout, a.Quality, a.SangforLoginTime, a.SangforPageTime, buf)
+	for k, v := range LoadJsonConfigToMap(a.Config) {
+		grids, num, err := SaveImg(ctx, v, k, a.TimeRange, a.Timeout, a.Quality, a.SangforLoginTime, a.SangforPageTime, buf)
 		if err != nil {
 			log.Println(err)
 		}
-		fname, err := util.MergeImage(grids, 1, num, k)
+		fname, err := MergeImage(grids, 1, num, k, a.IsUpload)
 		if err != nil {
 			cancel()
 			os.Exit(0)

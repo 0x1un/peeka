@@ -1,4 +1,4 @@
-package loginzbx
+package checklogin
 
 import (
 	"bytes"
@@ -47,7 +47,7 @@ func post(url string, reader *bytes.Reader) []byte {
 }
 
 // 验证账户密码
-func ValidateAccount(url, username, password string) bool {
+func ValidateAccountZBX(url, username, password string) bool {
 	d := Data{
 		JsonRpc: "2.0",
 		Method:  "user.login",

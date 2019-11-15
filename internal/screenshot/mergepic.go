@@ -1,4 +1,5 @@
-package util
+// merge images and screenshot
+package screenshot
 
 import (
 	"context"
@@ -14,8 +15,8 @@ import (
 )
 
 // MergeImage: 合并图片, 合并规则由(x,y)决定
-// TODO: 返回参数需要添加一个string, 作用为返回图床链接
-func MergeImage(grids []*gim.Grid, x, y int, filename string) (string, error) {
+// 返回参数需要添加一个string, 作用为返回图床链接
+func MergeImage(grids []*gim.Grid, x, y int, filename, upload string) (string, error) {
 	if len(grids) == 0 {
 		return "", errors.New("No pictures..")
 	}
@@ -24,7 +25,6 @@ func MergeImage(grids []*gim.Grid, x, y int, filename string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	// save the output to jpg or png
 	file, err := os.Create(filename + ".png")
 	if err != nil {
@@ -34,9 +34,9 @@ func MergeImage(grids []*gim.Grid, x, y int, filename string) (string, error) {
 		return "", err
 	}
 	// TODO: 这里需要将图片上传到图床
-	fname, err := PostFileToStorage(file.Name())
-	if err != nil {
-		return "", err
+	fname, err := PostFileToStorage(file.Name(), upload)
+	if fname == "" && err == nil {
+		return "", nil
 	}
 	return fname, nil
 }
@@ -81,6 +81,7 @@ func FullScreenshot(quality int64, res *[]byte) chromedp.Tasks {
 	}
 }
 
+// 对指定元素进行截图, 小面积截图
 func ElementScreenshot(sel string, res *[]byte) chromedp.Tasks {
 	return chromedp.Tasks{
 		chromedp.WaitVisible(sel, chromedp.ByID),
