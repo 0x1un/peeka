@@ -3,54 +3,34 @@ package screenshot
 import (
 	"context"
 	"log"
+	"net/url"
 	"os"
+	"path"
 	"peeka/internal/screenshot/action"
 	"peeka/internal/screenshot/checklogin"
-	"strconv"
 	"time"
 
+	"github.com/0x1un/env"
 	"github.com/chromedp/chromedp"
-	"github.com/subosito/gotenv"
+	"github.com/joho/godotenv"
 )
 
 var (
-	version = "0.0.5"
 	options []chromedp.ExecAllocatorOption
 	ctx     context.Context
 	cancel  context.CancelFunc
+	CFG     = ScsConfig{}
 )
-
-var a CommandArgv
 
 // init: 初始化一些必要配置
 func init() {
-	gotenv.Load()
-	if len(os.Args) < 2 {
-		// fmt.Println("或许你需要指定些什么参数? -h 查看帮助")
-		// os.Exit(0)
-		sltime, _ := strconv.Atoi(os.Getenv("SANGFOR_LOGIN_TIME"))
-		sptime, _ := strconv.Atoi(os.Getenv("SANGFOR_PAGE_TIME"))
-		timeout, _ := strconv.Atoi(os.Getenv("TIMEOUT"))
-		totaltimeout, _ := strconv.Atoi(os.Getenv("TOTALTIMEOUT"))
-		quality, _ := strconv.Atoi(os.Getenv("QUALITY"))
-		a = CommandArgv{
-			Username:         os.Getenv("ZABBIX_USERNAME"),
-			Password:         os.Getenv("ZABBIX_PASSWORD"),
-			Host:             os.Getenv("ZABBIX_SERVER"),
-			Config:           "./config.json",
-			Timeout:          timeout,
-			TotalTimeOut:     totaltimeout,
-			Quality:          int64(quality),
-			TimeRange:        os.Getenv("TIMERANGE"),
-			IsUpload:         os.Getenv("UPLOAD_QINIU"),
-			SangforLoginTime: sltime,
-			SangforPageTime:  sptime,
-		}
-	} else {
-		a = ParamParser(version)
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err)
 	}
-
-	if !checklogin.ValidateAccountZBX(a.Host, a.Username, a.Password) {
+	if err := env.Parse(&CFG); err != nil {
+		log.Fatal("配置文件.env加载错误, 请检查!")
+	}
+	if !checklogin.ValidateAccountZBX(CFG.ZBXHost, CFG.ZBXUsername, CFG.ZBXPassword) {
 		log.Println("帐号或密码验证错误, 请重新指定账户和密码!")
 		os.Exit(0)
 	}
@@ -71,7 +51,7 @@ func init() {
 func Run() map[string]string {
 	var buf []byte
 	ctx, cancel = chromedp.NewExecAllocator(ctx, options...)
-	ctx, cancel = context.WithTimeout(ctx, time.Second*time.Duration(a.TotalTimeOut))
+	ctx, cancel = context.WithTimeout(ctx, time.Second*time.Duration(CFG.TotalTimeOut))
 	ctx, cancel = chromedp.NewContext(ctx)
 	defer cancel()
 	SignalReading(cancel)
@@ -80,24 +60,31 @@ func Run() map[string]string {
 
 	if err := chromedp.Run(
 		ctx,
-		action.SigninAction(a.Host, a.Username, a.Password),
+		action.SigninAction(CFG.ZBXHost, CFG.ZBXUsername, CFG.ZBXPassword),
 	); err != nil {
 		log.Println("未在$PATH中找到Chrome/Chromium")
 		os.Exit(0)
 	}
 
+	CreateDirIfNotExist(CFG.OutputPath)
 	remoteFiles := make(map[string]string)
-	for k, v := range LoadJsonConfigToMap(a.Config) {
-		grids, num, err := SaveImg(ctx, v, k, a.TimeRange, a.Timeout, a.Quality, a.SangforLoginTime, a.SangforPageTime, buf)
+	for name, v := range LoadJsonConfigToMap(CFG.ZBXConfig) {
+		saveDir := CFG.OutputPath + "/" + name
+		grids, num, err := SaveImg(ctx, v, saveDir, CFG.ZBXTimeRange, CFG.WaitTime, int64(CFG.Quality), CFG.SangforLoginTime, CFG.SangforPageTime, buf)
 		if err != nil {
 			log.Println(err)
 		}
-		fname, err := MergeImage(grids, 1, num, k, a.IsUpload)
+		fname, err := MergeImage(grids, 1, num, name, CFG.IsUpload)
 		if err != nil {
 			cancel()
 			os.Exit(0)
 		}
-		remoteFiles[k] = "http://q0a7c7rr4.bkt.clouddn.com/" + fname
+		u, err := url.Parse("http://" + CFG.QiniuBucketURL)
+		if err != nil {
+			log.Fatal(err)
+		}
+		u.Path = path.Join(u.Path, fname)
+		remoteFiles[name] = u.String()
 	}
 	log.Println("抓取完成, 进入相关目录查看!")
 	return remoteFiles

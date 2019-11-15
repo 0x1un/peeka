@@ -14,9 +14,8 @@ import (
 	gim "github.com/ozankasikci/go-image-merge"
 )
 
-// MergeImage: 合并图片, 合并规则由(x,y)决定
 // 返回参数需要添加一个string, 作用为返回图床链接
-func MergeImage(grids []*gim.Grid, x, y int, filename, upload string) (string, error) {
+func MergeImage(grids []*gim.Grid, x, y int, filename string, upload bool) (string, error) {
 	if len(grids) == 0 {
 		return "", errors.New("No pictures..")
 	}
@@ -26,7 +25,7 @@ func MergeImage(grids []*gim.Grid, x, y int, filename, upload string) (string, e
 		return "", err
 	}
 	// save the output to jpg or png
-	file, err := os.Create(filename + ".png")
+	file, err := os.Create(CFG.OutputPath + "/" + filename + ".png")
 	if err != nil {
 		return "", err
 	}

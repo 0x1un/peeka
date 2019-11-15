@@ -13,16 +13,16 @@ import (
 	"github.com/qiniu/api.v7/v7/storage"
 )
 
-func PostFileToStorage(filename, upload string) (string, error) {
-	if upload == "0" {
+func PostFileToStorage(filename string, upload bool) (string, error) {
+	if !upload {
 		return "", nil
 	}
 	localFile := filename
 	key := ComputeFileSHA(filename)
 	putPolicy := storage.PutPolicy{
-		Scope: os.Getenv("BUCKET"),
+		Scope: CFG.QiniuBucket,
 	}
-	mac := qbox.NewMac(os.Getenv("ACCESSKEY"), os.Getenv("SECRETKEY"))
+	mac := qbox.NewMac(CFG.QiniuAK, CFG.QiniuSK)
 	upToken := putPolicy.UploadToken(mac)
 
 	cfg := storage.Config{}
