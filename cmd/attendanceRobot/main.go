@@ -14,6 +14,8 @@ import (
 	"strconv"
 	"time"
 
+	"peeka/internal/component"
+
 	"github.com/jinzhu/gorm"
 	"github.com/subosito/gotenv"
 )
@@ -42,6 +44,7 @@ func main() {
 	}
 	result := Begin()
 	fmt.Println(result)
+	tokens = component.RemoveEmpty(tokens)
 	if *robot {
 		chatbot.Send(tokens, nil, false, result)
 	}
