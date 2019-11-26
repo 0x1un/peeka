@@ -1,0 +1,5 @@
+[Unit]
+Description=执行网络巡检操作，深信服，zabbix流量图抓取
+
+[Service]
+ExecStart=/root/soft/screenshot_/screenshot
