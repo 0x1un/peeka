@@ -79,7 +79,7 @@ func Begin() string {
 	collections.Set("272220008",
 		"09:00:00-18:00:00") // H
 	collections.Set("447095022",
-		"15:00:00-22:00:00") // V
+		"12:00:00-21:00:00") // V
 
 	workUsers := Calling()
 	depUsers := GetDepUsers(conn)
