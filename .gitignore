@@ -1,2 +1,6 @@
 cmd/dingtalk/*
 ast/
+*.cer
+*.der
+*.pem
+*.csv
