@@ -2,9 +2,10 @@ package main
 
 import (
 	"crypto/tls"
-	"fmt"
-	"reflect"
+	"log"
 
+	"github.com/0x1un/env"
+	"github.com/joho/godotenv"
 	"gopkg.in/ldap.v3"
 )
 
@@ -14,8 +15,25 @@ type Client struct {
 	Err    error
 }
 
-func NewClient(binduser, bindpasswd, server, basedn string) *Client {
-	conn, err := ldap.DialTLS("tcp", server, &tls.Config{
+type LDAPInfo struct {
+	BindUser   string `env:"BINDUSER"`
+	BindPwd    string `env:"BINDPWD"`
+	BaseDn     string `env:"BASEDN"`
+	ServerHost string `env:"SERVER_HOST"`
+}
+
+func (l *LDAPInfo) ReadInfo() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err)
+	}
+	if err := env.Parse(l); err != nil {
+		log.Fatal(err)
+	}
+}
+
+// func NewClient(binduser, bindpasswd, server, basedn string) *Client {
+func NewClient(ldapinfo *LDAPInfo) *Client {
+	conn, err := ldap.DialTLS("tcp", ldapinfo.ServerHost, &tls.Config{
 		InsecureSkipVerify: true,
 	})
 	cli := &Client{}
@@ -23,13 +41,12 @@ func NewClient(binduser, bindpasswd, server, basedn string) *Client {
 		cli.Err = err
 		return cli
 	}
-	err = conn.Bind(binduser, bindpasswd)
+	err = conn.Bind(ldapinfo.BindUser, ldapinfo.BindPwd)
 	if err != nil {
 		cli.Err = err
 		return cli
 	}
-	fmt.Println(reflect.TypeOf(conn))
 	cli.Conn = conn
-	cli.BaseDN = basedn
+	cli.BaseDN = ldapinfo.BaseDn
 	return cli
 }

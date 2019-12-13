@@ -9,6 +9,10 @@ import (
 	"gopkg.in/ldap.v3"
 )
 
+const (
+	FILENAME = "users.csv"
+)
+
 type UserProfile struct {
 	Username           string
 	Cn                 string
@@ -22,51 +26,89 @@ type UserProfile struct {
 }
 
 func main() {
-	conn := NewClient("administrator@contoso.com", "goodluck@123", "172.20.6.10:636", "dc=contoso,dc=com")
-	fmt.Println(conn)
+	ldapinfo := LDAPInfo{}
+	ldapinfo.ReadInfo()
+	conn := NewClient(&ldapinfo)
 	defer conn.Conn.Close()
-
-	// err := AddUsersFromFile("./users.csv", conn.Conn)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// DeleteUserFromFile("./users.csv", conn.Conn)
-	conn.DeleteUserFromFile("./users.csv")
+	CmdExecute(conn)
 }
 
-func AddUsersFromFile(filename string, conn *ldap.Conn) error {
+func (c *Client) DeleteUserFromCli(cmd *Flag) error {
+	if err := c.DeleteSingleUser(cmd.RealName, cmd.Org); err != nil {
+		return err
+	}
+	return nil
+}
+func (c *Client) CreateUserFromCli(cmd *Flag) error {
+	err := c.AddSingleUser(UserProfile{
+		Username:       cmd.UserName,
+		Cn:             cmd.RealName,
+		Org:            cmd.Org,
+		SAMAccountName: []string{cmd.UserName},
+		UserAccountControl: func() []string {
+			if cmd.Disable {
+				return []string{"514"}
+			}
+			return []string{"512"}
+		}(),
+		ObjectClass: []string{"top", "person", "organizationalPerson", "user"},
+		UnicodePwd:  []string{EncodePwd(cmd.Password)},
+		Description: []string{cmd.Description},
+		DisplayName: []string{cmd.RealName},
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func FileUserToProfile(filename string, uprofiles *[]UserProfile) error {
 	users, err := ReadUserFromCsvToStruct(filename)
 	if err != nil {
 		return err
 	}
-
-	var profile UserProfile
+	var up UserProfile
 	for _, user := range users {
-		profile = UserProfile{
-			Cn:                 user.Name,
-			Username:           user.Username,
-			UnicodePwd:         []string{EncodePwd(user.Password)},
-			ObjectClass:        []string{"top", "person", "organizationalPerson", "user"},
-			UserAccountControl: []string{"512"}, // 激活状态，514为禁用状态
-			DisplayName:        []string{user.Name},
-			SAMAccountName:     []string{user.Username}, // 登录账户名
-			Description:        []string{"批次: " + user.BatchNum},
-			Org:                user.Org,
+		up.Cn = user.Name
+		up.Username = user.Username
+		up.Org = user.Org
+		up.UnicodePwd = []string{EncodePwd(user.Password)}
+		up.ObjectClass = []string{"top", "person", "organizationalPerson", "user"}
+		up.UserAccountControl = []string{"512"}
+		up.SAMAccountName = []string{user.Username}
+		up.DisplayName = []string{user.Name}
+		up.Description = []string{"批次: " + user.BatchNum}
+		*uprofiles = append(*uprofiles, up)
+	}
+	return nil
+}
+
+func (c *Client) AddUsersFromFile(filename string) error {
+	var uprofiles []UserProfile
+	err := FileUserToProfile(filename, &uprofiles)
+	if err != nil {
+		return err
+	}
+
+	for _, user := range uprofiles {
+		if err := c.AddSingleUser(user); err != nil {
+			log.Fatal(err)
 		}
-		if err := conn.Add(AddAttribute(profile)); err != nil {
-			if ldap.IsErrorWithCode(err, 68) {
-				return errors.New("User is already exist")
-			} else {
-				return errors.New(fmt.Sprintf("User insert err: %s", err))
-			}
-		}
-		log.Printf("Added user: %s\t初始密码: %s\n", profile.Cn, profile.UnicodePwd[0])
 	}
 
 	return nil
 }
 
 func (c *Client) AddSingleUser(uprofile UserProfile) error {
+	if err := c.Conn.Add(AddAttribute(uprofile)); err != nil {
+		if ldap.IsErrorWithCode(err, 68) {
+			log.Printf("用户\033[31m\033[01m\033[05m %s \033[0m已经存在\n", uprofile.Cn)
+		} else {
+			return errors.New(fmt.Sprintf("添加用户失败: %s", err))
+		}
+	} else {
+		log.Printf("%s 添加成功\n", uprofile.Cn)
+	}
 	return nil
 }
 
@@ -98,23 +140,26 @@ func (c *Client) DeleteSingleUser(username, ou string) error {
 	delReq := ldap.NewDelRequest(userdn, nil)
 	err := c.Conn.Del(delReq)
 	if err != nil {
-		log.Println(err)
 		return err
 	}
-	log.Printf("Deleted user: %s of %s\n", username, ou)
+	log.Printf("所属 %s 组的用户\033[31m\033[01m\033[05m %s \033[0m已删除\n", ou, username)
 	return nil
 }
 
 // 删除一个文件中的所有用户，在ad上
-func (c *Client) DeleteUserFromFile(filename string) {
+func (c *Client) DeleteUserFromFile(filename string) error {
 	users, err := ReadUserFromCsvToStruct(filename)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	for _, user := range users {
 		if err := c.DeleteSingleUser(user.Name, user.Org); err != nil {
-			log.Fatal(err)
+			if ldap.IsErrorWithCode(err, 32) {
+				continue
+			} else {
+				return err
+			}
 		}
-		log.Printf("Deleted user: %s of %s\n", user.Name, user.Org)
 	}
+	return nil
 }
