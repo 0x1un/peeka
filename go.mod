@@ -15,8 +15,11 @@ require (
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/ozankasikci/go-image-merge v0.2.0
 	github.com/qiniu/api.v7/v7 v7.4.0
+	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.4.0 // indirect
 	github.com/subosito/gotenv v1.2.0
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/sys v0.0.0-20191008105621-543471e840be
+	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2
+	gopkg.in/ldap.v3 v3.1.0
 )
