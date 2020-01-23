@@ -20,3 +20,10 @@ CREATE TABLE IF NOT EXISTS dep_users (
 	userid text NOT NULL,
 	createdat text NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS class_list (
+    id integer PRIMARY KEY,
+    class_id text NOT NULL,
+    class_data text NOT NULL,
+    createdat text NOT NULL
+);
