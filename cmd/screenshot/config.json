@@ -1,36 +1,10 @@
 {
-    "成都-阿里网络巡检":[
+    "阿里-深信服":[
         {
-            "CD-HZ电信点对点专线":"http://127.0.0.1:8888/charts.php?page=1&groupid=22&hostid=10319&graphid=1459"
+            "成都阿里-电信深信服": "https://10.6.2.6"
         },
         {
-            "CD-HZ联通点对点专线":"http://127.0.0.1:8888/charts.php?page=1&groupid=22&hostid=10318&graphid=1452"
-        },
-        {
-            "阿里-电信-外网流量图":"http://127.0.0.1:8888/charts.php?page=1&groupid=21&hostid=10272&graphid=1059"
-        },
-        {
-            "阿里-联通-外网流量图":"http://127.0.0.1:8888/charts.php?page=1&groupid=21&hostid=10271&graphid=1040"
-        }
-    ],
-    "成都-滴滴网络巡检":[
-        {
-            "成都滴滴联通外网":"http://127.0.0.1:8888/charts.php?page=1&groupid=26&hostid=10329&graphid=1520"
-        },
-        {
-            "成都滴滴电信外网": "http://127.0.0.1:8888/charts.php?page=1&groupid=26&hostid=10328&graphid=1508"
-        },
-        {
-            "CD-WJ联通专线": "http://127.0.0.1:8888/charts.php?page=1&groupid=26&hostid=10348&graphid=1631"
-        },
-        {
-            "CD-WJ电信专线": "http://127.0.0.1:8888/charts.php?page=1&groupid=26&hostid=10348&graphid=1659"
-        },
-        {
-            "WJ-BJ联通点对点专线": "http://127.0.0.1:8888/charts.php?page=1&groupid=26&hostid=10348&graphid=1630"
-        },
-        {
-            "WJ-HZ电信点对点专线": "http://127.0.0.1:8888/charts.php?page=1&groupid=26&hostid=10348&graphid=1658"
+            "成都阿里-联通深信服": "https://10.6.2.5"
         }
     ]
 }

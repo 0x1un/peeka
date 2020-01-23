@@ -4,3 +4,4 @@ ast/
 *.der
 *.pem
 *.csv
+.vscode
