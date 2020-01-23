@@ -10,79 +10,6 @@ import (
 	"time"
 )
 
-// 使用gorm标签，如有特殊用途，自行修改tag
-type Schedule struct {
-	PlanID         int    `json:"plan_id" gorm:"column:planid"`
-	CheckType      string `json:"check_type" gorm:"column:checktype"`
-	ApproveID      int    `json:"approve_id" gorm:"column:approveid"`
-	Userid         string `json:"userid" gorm:"column:userid"`
-	ClassID        int    `json:"class_id" gorm:"column:classid"`
-	ClassSettingID int    `json:"class_setting_id" gorm:"column:classsettingid"`
-	PlanCheckTime  string `json:"plan_check_time" gorm:"column:planchecktime"`
-	GroupID        int    `json:"group_id" gorm:"column:groupid"`
-	CreatedAt      string `gorm:"column:createdat"`
-	UserName       string `gorm:"-"`
-}
-
-type ListSchedule struct {
-	ErrResponse
-	Result struct {
-		HasMore bool `json:"has_more"`
-		// Schedules []misc.Data
-		Schedules []Schedule `json:"schedules"`
-	} `json:"result"`
-}
-
-// 获取考勤的班次摘要信息
-type ShiftList struct {
-	ErrResponse
-	Result struct {
-		HasMore bool `json:"has_more"`
-		Cursor  int  `json:"cursor"`
-		Result  []struct {
-			Name string `json:"name"`
-			ID   int    `json:"id"`
-		} `json:"result"`
-	} `json:"result"`
-}
-
-// ListRecord: 打卡记录
-type ListRecord struct {
-	ErrResponse
-	RecordResult []struct {
-		BaseCheckTime  int64   `json:"baseCheckTime"`
-		Id             int64   `json:"id"`
-		WorkDate       int64   `json:"workDate"`
-		PlanCheckTime  int64   `json:"planCheckTime"`
-		PlanId         int64   `json:"planId"`
-		GroupId        int64   `json:"groupId"`
-		UserCheckTime  int64   `json:"userCheckTime"`
-		UserLongitude  float64 `json:"userLongitude"`
-		UserAccuracy   float64 `json:"userAccuracy"`
-		UserLatitude   float64 `json:"userLatitude"`
-		IsLegal        string  `json:"isLegal"`
-		UserAddress    string  `json:"userAddress"`
-		UserId         string  `json:"userId"`
-		CheckType      string  `json:"checkType"`
-		TimeResult     string  `json:"timeResult"`
-		DeviceId       string  `json:"deviceId"`
-		CorpId         string  `json:"corpId"`
-		SourceType     string  `json:"sourceType"`
-		LocationMethod string  `json:"locationMethod"`
-		LocationResult string  `json:"locationResult"`
-		ProcInstId     string  `json:"procInstId"`
-	}
-}
-
-// 考勤组摘要结构
-type AttdGroup struct {
-	ErrResponse
-	Result []struct {
-		Name string `json:"Name"`
-		Id   int    `json:"id"`
-	} `json:"result"`
-}
-
 // GetScheduleList: 返回size条结果, offset为偏移量, HasMore为false表示数据已完
 // workDate: 只取年月日部分
 // offset: 第一次为0, 之后传入offset+size
@@ -182,12 +109,46 @@ func (c *DingTalkClient) GetAttendanceGroup(opUid, groupName string) (*AttdGroup
 	return res, nil
 }
 
-// 获取考勤班次摘要信息
-func (c *DingTalkClient) GetShiftList(opuids string, cursor int) (*ShiftList, error) {
+// 根据用户id获取考勤班次摘要信息
+func (c *DingTalkClient) GetShiftList(opuids string, cursor int) (*GroupMinimalismList, error) {
 	if err := checkParameter(opuids, cursor); err != nil {
 		return nil, err
 	}
-	return nil, nil
+	urlParam := make(url.Values)
+	urlParam.Set("access_token", c.AccessToken)
+	params := make(misc.Data)
+	params.Set("op_user_id", opuids)
+	params.Set("cursor", cursor)
+	data, err := Client.Post("topapi/attendance/group/minimalism/list", urlParam, params)
+	if err != nil {
+		return nil, err
+	}
+	res := new(GroupMinimalismList)
+	if err := json.Unmarshal(data, res); err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+// 获取指定考勤组的详细信息
+func (c *DingTalkClient) GetSpecShiftDetail(opuid, grpName string) (*AttenGroup, error) {
+	if err := checkParameter(opuid, grpName); err != nil {
+		return nil, err
+	}
+	urlParam := make(url.Values)
+	urlParam.Set("access_token", c.AccessToken)
+	params := make(misc.Data)
+	params.Set("op_user_id", opuid)
+	params.Set("group_id", grpName)
+	data, err := Client.Post("topapi/attendance/group/query", urlParam, params)
+	if err != nil {
+		return nil, err
+	}
+	res := new(AttenGroup)
+	if err := json.Unmarshal(data, res); err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 // 检查参数是否为空

@@ -6,11 +6,11 @@ import (
 	"log"
 	"os"
 	network "peeka/internal/component/net"
-	"time"
 )
 
 const (
-	baseURL = `https://oapi.dingtalk.com/robot/send?access_token=`
+	baseURL  = `https://oapi.dingtalk.com/robot/send?access_token=`
+	fileName = "chatbot.log"
 )
 
 type Message struct {
@@ -26,7 +26,6 @@ type Message struct {
 }
 
 func Send(tokens, atUsers []string, notifyAll bool, text string) {
-	fileName := time.Now().Format("20060102") + ".dingding.log"
 	logFile, _ := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0766)
 	defer logFile.Close()
 	Log := log.New(logFile, "[Info]", log.Ldate|log.Ltime) // log.Ldate|log.Ltime|log.Lshortfile
