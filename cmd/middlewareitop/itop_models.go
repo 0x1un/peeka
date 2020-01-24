@@ -45,6 +45,7 @@ type RequestData struct {
 	OutPutFields string `json:"output_fields"`
 }
 
+// 生成请求数据
 func NewRestAPIAuthData(auth_user, auth_pwd string) (*strings.Reader, error) {
 	req_data := make(url.Values)
 	json_data := new(RequestData)

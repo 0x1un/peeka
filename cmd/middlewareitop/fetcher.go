@@ -9,6 +9,12 @@ import (
 	"strings"
 )
 
+func ListenITOP(url string, data io.Reader) <-chan UserReqResponse {
+
+	return nil
+}
+
+// 返回来自itop的标准门户工单数据
 func FetcheFromITOP(url string, data io.Reader) UserReqResponse {
 	resp, err := request(http.MethodPost, url, data)
 	if err != nil {
@@ -22,6 +28,7 @@ func FetcheFromITOP(url string, data io.Reader) UserReqResponse {
 
 }
 
+// 简单封装的http请求
 func request(method, url string, data io.Reader) ([]byte, error) {
 	req, err := http.NewRequest(method, url, data)
 	if err != nil {

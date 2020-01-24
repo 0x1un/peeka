@@ -1,8 +1,6 @@
 package main
 
-import (
-	"peeka/internal/dingtalk/api"
-)
+import "fmt"
 
 // 釘釘應用程序的agentid
 const (
@@ -11,17 +9,18 @@ const (
 )
 
 func main() {
-	request_data, err := NewRestAPIAuthData(".", ".")
+	request_data, err := NewRestAPIAuthData("admin", ".")
 	if err != nil {
 		panic(err)
 	}
 
 	// 从itop中获取所有状态为开启的工单
 	resp := FetcheFromITOP(ITOP_URL, request_data)
+	fmt.Printf("%+v", resp)
 
-	client := api.NewClient(api.APPKEY, api.APPSECRET)
+	// client := api.NewClient(api.APPKEY, api.APPSECRET)
 	// 发送来自itop的工单
-	if err := SendToProv(client, resp); err != nil {
-		panic(err)
-	}
+	// if err := SendToProv(client, resp); err != nil {
+	// 	panic(err)
+	// }
 }
