@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"peeka/cmd/middlewareitop/db"
+)
 
 // 釘釘應用程序的agentid
 const (
@@ -9,17 +12,25 @@ const (
 )
 
 func main() {
-	request_data, err := NewRestAPIAuthData("admin", ".")
+	request_data, err := NewRestAPIAuthData(".", ".")
+	if err != nil {
+		panic(err)
+	}
+
+	conn, err := db.NewDBConnect()
 	if err != nil {
 		panic(err)
 	}
 
 	// 从itop中获取所有状态为开启的工单
 	resp := FetcheFromITOP(ITOP_URL, request_data)
-	fmt.Printf("%+v", resp)
+	for _, v := range resp.Object {
+		fmt.Println(v.Filed.Title)
+		StoreTicketFromITOP(conn, v.Filed)
+	}
 
 	// client := api.NewClient(api.APPKEY, api.APPSECRET)
-	// 发送来自itop的工单
+	// // 发送来自itop的工单
 	// if err := SendToProv(client, resp); err != nil {
 	// 	panic(err)
 	// }

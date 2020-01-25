@@ -6,7 +6,7 @@ import (
 )
 
 func NewDBConnect() (*gorm.DB, error) {
-	dbconn, err := gorm.Open("postgres", "host=172.16.0.4 port=5432 user=itop dbname=itopmiddle password=goodluck@123 sslmode=disable")
+	dbconn, err := gorm.Open("postgres", "host=172.16.0.4 port=5432 user=itop dbname=itopmiddleware password=goodluck@123 sslmode=disable")
 	if err != nil {
 		return nil, err
 	}

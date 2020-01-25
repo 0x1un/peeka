@@ -3,10 +3,13 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/jinzhu/gorm"
 )
 
 func ListenITOP(url string, data io.Reader) <-chan UserReqResponse {
@@ -25,7 +28,20 @@ func FetcheFromITOP(url string, data io.Reader) UserReqResponse {
 		panic(err)
 	}
 	return *t
+}
 
+func StoreTicketFromITOP(conn *gorm.DB, ticket Fileds) {
+	var e error
+	h := conn.Begin()
+	h = h.Table("itop_ticket")
+	e = h.Create(ticket).Error
+	if e != nil {
+		h.Rollback()
+		fmt.Println(e.Error())
+		return
+	}
+	h.Commit()
+	return
 }
 
 // 简单封装的http请求
