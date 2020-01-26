@@ -12,7 +12,7 @@ const (
 )
 
 func main() {
-	request_data, err := NewRestAPIAuthData(".", ".")
+	request_data, err := NewRestAPIAuthData("admin", "goodluck@123.")
 	if err != nil {
 		panic(err)
 	}

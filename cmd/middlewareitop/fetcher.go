@@ -30,6 +30,7 @@ func FetcheFromITOP(url string, data io.Reader) UserReqResponse {
 	return *t
 }
 
+// 对数据库插入itop工单数据，插入的数据为Fileds中的工单详情
 func StoreTicketFromITOP(conn *gorm.DB, ticket Fileds) {
 	var e error
 	h := conn.Begin()
