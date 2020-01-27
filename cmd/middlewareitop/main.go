@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"peeka/cmd/middlewareitop/db"
 )
 
@@ -12,7 +12,7 @@ const (
 )
 
 func main() {
-	request_data, err := NewRestAPIAuthData("admin", "goodluck@123.")
+	request_data, err := NewRestAPIAuthData("", ".")
 	if err != nil {
 		panic(err)
 	}
@@ -25,8 +25,9 @@ func main() {
 	// 从itop中获取所有状态为开启的工单
 	resp := FetcheFromITOP(ITOP_URL, request_data)
 	for _, v := range resp.Object {
-		fmt.Println(v.Filed.Title)
-		StoreTicketFromITOP(conn, v.Filed)
+		if err := StoreTicketFromITOP(conn, v.Filed); err != nil {
+			log.Println(err)
+		}
 	}
 
 	// client := api.NewClient(api.APPKEY, api.APPSECRET)
