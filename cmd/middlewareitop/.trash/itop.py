@@ -11,10 +11,11 @@ json_str = json.dumps({
     "key":
     "SELECT UserRequest WHERE operational_status = 'ongoing'",
     "output_fields":
-    "request_type,servicesubcategory_name,urgency,origin,caller_id_friendlyname,impact,title,description",
+    # "request_type,servicesubcategory_name,urgency,origin,caller_id_friendlyname,impact,title,description",
+    "*",
 })
 json_data = {
-    "auth_user": ".",
+    "auth_user": "",
     "auth_pwd": ".",
     "json_data": json_str
 }
@@ -28,4 +29,4 @@ def get():
 
 if __name__ == "__main__":
     result = get()
-    print(result.json())
+    print(json.dumps(result.json()))
