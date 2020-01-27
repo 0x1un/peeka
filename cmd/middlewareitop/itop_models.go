@@ -13,6 +13,7 @@ type Base struct {
 }
 
 type Fileds struct {
+	Ref                    string `json:"ref" gorm:"column:ref"`                                         // itop工单中的序列号，唯一
 	RequestType            string `json:"request_type" gorm:"column:request_type"`                       // 服务请求类型
 	ServiceSubcategoryName string `json:"servicesubcategory_name" gorm:"column:servicesubcategory_name"` // 子服务名称 （最终的服务）
 	Urgency                string `json:"urgency" gorm:"column:urgency"`                                 // 紧急度
@@ -51,7 +52,7 @@ func NewRestAPIAuthData(auth_user, auth_pwd string) (*strings.Reader, error) {
 	json_data.Operation = "core/get"
 	json_data.Class = "UserRequest"
 	json_data.Key = "SELECT UserRequest WHERE operational_status = \"ongoing\""
-	json_data.OutPutFields = "request_type,servicesubcategory_name,urgency,origin,caller_id_friendlyname,impact,title,description,contacts_list"
+	json_data.OutPutFields = "ref,request_type,servicesubcategory_name,urgency,origin,caller_id_friendlyname,impact,title,description,contacts_list"
 	data, err := json.Marshal(json_data)
 	if err != nil {
 		return nil, err
