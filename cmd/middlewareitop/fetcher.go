@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -31,18 +32,21 @@ func FetcheFromITOP(url string, data io.Reader) UserReqResponse {
 }
 
 // 对数据库插入itop工单数据，插入的数据为Fileds中的工单详情
-func StoreTicketFromITOP(conn *gorm.DB, ticket Fileds) {
-	var e error
+func StoreTicketFromITOP(conn *gorm.DB, ticket Fileds) (e error) {
 	h := conn.Begin()
 	h = h.Table("itop_ticket")
-	e = h.Create(ticket).Error
-	if e != nil {
-		h.Rollback()
-		fmt.Println(e.Error())
-		return
+	isNotFound := h.Select("ref").Where("ref=?", ticket.Ref).Scan(&struct{ Ref string }{}).RecordNotFound()
+	if isNotFound {
+		e = h.Create(ticket).Error
+		if e != nil {
+			h.Rollback()
+			return e
+		}
+	} else {
+		return errors.New(fmt.Sprintf("错误: 重复插入条目: %s", ticket.Ref))
 	}
 	h.Commit()
-	return
+	return nil
 }
 
 // 简单封装的http请求
