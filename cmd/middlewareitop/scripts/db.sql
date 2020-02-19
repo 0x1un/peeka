@@ -1,8 +1,8 @@
 create table if not exists itop_ticket (
     id serial not null primary key,
     ref varchar(32) not null unique,
-    request_type varchar(32) not null default '',
-    servicesubcategory_name varchar(20) not null default '',
+    request_type varchar(128) not null default '',
+    servicesubcategory_name varchar(128) not null default '',
     urgency varchar(1) not null default '0',
     origin varchar(10) not null default '',
     caller_id_friendlyname varchar(32) not null default '',
