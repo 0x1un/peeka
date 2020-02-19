@@ -5,3 +5,4 @@ ast/
 *.pem
 *.csv
 .vscode
+.token.json
