@@ -1,18 +1,18 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"peeka/cmd/middlewareitop/db"
 )
 
 // 釘釘應用程序的agentid
 const (
-	ITOP_URL = `http://140.246.60.181:8096/itop/webservices/rest.php?version=1.3`
-	// ITOP_LOCAL_URL = `http://localhost:8000/webservices/rest.php?version=1.3`
+	iTopLocalURL = `http://localhost:8000/webservices/rest.php?version=1.3`
 )
 
 func main() {
-	request_data, err := NewRestAPIAuthData("", ".")
+	request_data, err := NewRestAPIAuthData("admin", "...")
 	if err != nil {
 		panic(err)
 	}
@@ -23,8 +23,9 @@ func main() {
 	}
 
 	// 从itop中获取所有状态为开启的工单
-	resp := FetcheFromITOP(ITOP_URL, request_data)
+	resp := FetcheFromITOP(iTopLocalURL, request_data)
 	for _, v := range resp.Object {
+		fmt.Println(v.Filed)
 		if err := StoreTicketFromITOP(conn, v.Filed); err != nil {
 			log.Println(err)
 		}
