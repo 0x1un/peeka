@@ -1,0 +1,52 @@
+<html>
+
+<head>
+    <script src="https://g.alicdn.com/dingding/dinglogin/0.0.5/ddLogin.js"></script>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+</head>
+
+<body>
+    <div class="text-center">
+        <!-- <h1 class="display-4">Welcome</h1> -->
+        <div id="login_container" class="center"></div>
+        <!-- <button type="button" class="btn btn-primary" id="JumpToLogin">跳转登录</button> -->
+    </div>
+    <style>
+        .center {
+            text-align: center;
+        }
+    </style>
+
+    <script type="text/javascript">
+        var url = "http://localhost:8848/cert_info";
+        var obj = DDLogin({
+            id: "login_container",
+            goto: encodeURIComponent('https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=dingoaoljrqsxdcj1m2yra&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=' + url), //请参考注释里的方式
+            style: "border:none;background-color:#FFFFFF;",
+            width: "365",
+            height: "400"
+        });
+
+        var handleMessage = function (event) {
+            var origin = event.origin;
+            console.log("origin", event.origin);
+            if (origin == "https://login.dingtalk.com") {
+                var loginTmpCode = event.data;
+                console.log("loginTmpCode", loginTmpCode);
+
+
+                window.location.href =
+                    "https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=appid&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=REDIRECT_URI&loginTmpCode=" +
+                    loginTmpCode;
+            }
+        };
+        if (typeof window.addEventListener != 'undefined') {
+            window.addEventListener('message', handleMessage, false);
+        } else if (typeof window.attachEvent != 'undefined') {
+            window.attachEvent('onmessage', handleMessage);
+        }
+
+    </script>
+</body>
+
+</html>
