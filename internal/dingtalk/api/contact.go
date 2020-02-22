@@ -83,6 +83,8 @@ func (c *DingTalkClient) GetUsersOfDepartmentByDepId(depId, offset, size, order 
 	return users, nil
 }
 
+func (c *DingTalkClient) GetUIDbyUnionid(unionid string) (uid string) {}
+
 func isFileChanged(filename string) bool {
 	hash, err := common.ComputeFileSHA(filename)
 	// 如果文件不存在，返回true让其继续访问api并创建缓存文件
