@@ -18,7 +18,7 @@
     </style>
 
     <script type="text/javascript">
-        var url = "http://localhost:8848/cert_info";
+        var url = "{{ .CallBackUrl }}";
         var obj = DDLogin({
             id: "login_container",
             goto: encodeURIComponent('https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid=dingoaoljrqsxdcj1m2yra&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=' + url), //请参考注释里的方式
