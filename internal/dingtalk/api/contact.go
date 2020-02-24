@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/url"
 	"peeka/pkg/common"
@@ -30,6 +31,9 @@ func (c *DingTalkClient) GetUserInfoDetailsByUid(userid, lang string) (*UserInfo
 	userinfo := new(UserInfoDetails)
 	if err := json.Unmarshal(data, userinfo); err != nil {
 		return nil, err
+	}
+	if userinfo.ErrCode != 0 {
+		return nil, errors.New(userinfo.ErrMsg)
 	}
 	return userinfo, nil
 }
@@ -83,7 +87,28 @@ func (c *DingTalkClient) GetUsersOfDepartmentByDepId(depId, offset, size, order 
 	return users, nil
 }
 
-func (c *DingTalkClient) GetUIDbyUnionid(unionid string) (uid string) {}
+func (c *DingTalkClient) GetUIDbyUnionid(unionid string) (*UidByUnionid, error) {
+	// user/getUseridByUnionid
+	if unionid == "" {
+		return nil, errors.New("unionid为空")
+	}
+	urlp := make(url.Values)
+	urlp.Set("access_token", c.AccessToken)
+	urlp.Set("unionid", unionid)
+	d, e := c.Get("user/getUseridByUnionid", urlp)
+	if e != nil {
+		return nil, e
+	}
+	info := new(UidByUnionid)
+	if e := json.Unmarshal(d, info); e != nil {
+		return nil, e
+	}
+	if info.ErrCode != 0 {
+		return nil, errors.New(fmt.Sprintf("%s", info.ErrMsg))
+	}
+	return info, nil
+
+}
 
 func isFileChanged(filename string) bool {
 	hash, err := common.ComputeFileSHA(filename)
