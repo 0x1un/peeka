@@ -4,6 +4,11 @@ type UserId struct {
 	ErrResponse
 	Userid string `json:"userid"`
 }
+type UidByUnionid struct {
+	ErrResponse
+	ContactType int    `json:"contactType"`
+	Userid      string `json:"userid"`
+}
 
 type UserList struct {
 	Userid    string `json:"userid" gorm:"column:userid"`
