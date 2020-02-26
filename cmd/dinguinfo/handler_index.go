@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -8,11 +9,18 @@ import (
 
 func ViewIndex(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		if fdata, err := ioutil.ReadFile("./resources/index.html"); err != nil {
-			log.Fatal(err)
-		} else {
-			_, err = w.Write(fdata)
-			CheckErr(err)
+		tpl, err := template.ParseFiles("./resources/handler_index.html")
+		if err != nil {
+			panic(err)
+		}
+		params := struct{
+			CallBackUrl string
+		}{
+			CallBackUrl: "http://localhost:8848/cert_info"
+		}
+		err = tpl.Execute(w, params)
+		if err != nil {
+			panic(err)
 		}
 	}
 }
