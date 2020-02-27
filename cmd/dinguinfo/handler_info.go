@@ -1,11 +1,11 @@
 package main
 
 import (
+	"boxes/internal/dingtalk/api"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
-	"peeka/internal/dingtalk/api"
 	"time"
 )
 
@@ -39,12 +39,6 @@ func ViewProfile(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			panic(err)
 		}
-		// spew.Dump(info)
-		// if fdata, err := ioutil.ReadFile("./resources/info.html"); err != nil {
-		// 	log.Fatal(err)
-		// } else {
-		//
-		// }
 		i := struct {
 			Name       string
 			Department string

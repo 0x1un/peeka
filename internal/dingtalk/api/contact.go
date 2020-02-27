@@ -1,12 +1,12 @@
 package api
 
 import (
+	"boxes/pkg/common"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/url"
-	"peeka/pkg/common"
 	"strconv"
 	"strings"
 )

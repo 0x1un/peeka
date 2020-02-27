@@ -1,7 +1,7 @@
 package main
 
 import (
-	"peeka/internal/dingtalk/api"
+	"boxes/internal/dingtalk/api"
 	"strings"
 )
 

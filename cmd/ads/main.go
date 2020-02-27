@@ -1,7 +1,7 @@
 package main
 
 import (
-	"peeka/internal/ads"
+	"boxes/internal/ads"
 )
 
 func main() {

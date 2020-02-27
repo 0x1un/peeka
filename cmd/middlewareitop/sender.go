@@ -1,10 +1,10 @@
 package main
 
 import (
+	"boxes/internal/dingtalk/api"
 	"errors"
 	"fmt"
 	"log"
-	"peeka/internal/dingtalk/api"
 )
 
 func SendToProv(c *api.DingTalkClient, resp UserReqResponse) error {

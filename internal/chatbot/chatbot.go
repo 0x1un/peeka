@@ -1,11 +1,11 @@
 package chatbot
 
 import (
+	network "boxes/internal/component/net"
 	"bytes"
 	"encoding/json"
 	"log"
 	"os"
-	network "peeka/internal/component/net"
 )
 
 const (

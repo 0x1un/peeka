@@ -4,12 +4,12 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"peeka/cmd/attendanceRobot/db"
-	"peeka/internal/chatbot"
-	"peeka/internal/component/array"
-	"peeka/internal/dingtalk/api"
 	"time"
 
+	"boxes/cmd/attendanceRobot/db"
+	"boxes/internal/chatbot"
+	"boxes/internal/component/array"
+	"boxes/internal/dingtalk/api"
 	"log"
 
 	"github.com/subosito/gotenv"

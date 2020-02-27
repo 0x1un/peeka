@@ -1,10 +1,10 @@
 package api
 
 import (
+	network "boxes/internal/component/net"
 	"bytes"
 	"encoding/json"
 	"os"
-	network "peeka/internal/component/net"
 	"strconv"
 )
 

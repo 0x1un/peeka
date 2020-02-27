@@ -7,7 +7,7 @@ import (
 	"path"
 	"strings"
 
-	"peeka/internal/screenshot/action"
+	"boxes/internal/screenshot/action"
 
 	"github.com/chromedp/chromedp"
 	gim "github.com/ozankasikci/go-image-merge"

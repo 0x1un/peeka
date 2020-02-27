@@ -1,10 +1,10 @@
 package main
 
 import (
+	"boxes/internal/chatbot"
+	"boxes/internal/screenshot"
 	"bytes"
 	"fmt"
-	"peeka/internal/chatbot"
-	"peeka/internal/screenshot"
 	"time"
 )
 

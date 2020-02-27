@@ -1,6 +1,7 @@
 package main
 
 import (
+	"boxes/internal/logger"
 	"log"
 	"net/http"
 )
@@ -10,6 +11,7 @@ type Data struct {
 }
 
 func main() {
+	logger.Info.Println("错误")
 	fs := http.FileServer(http.Dir("resources"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 

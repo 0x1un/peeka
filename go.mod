@@ -1,4 +1,4 @@
-module peeka
+module boxes
 
 go 1.13
 
@@ -7,6 +7,7 @@ require (
 	github.com/caarlos0/env v3.5.0+incompatible // indirect
 	github.com/chromedp/cdproto v0.0.0-20191009033829-c22f49c9ff0a
 	github.com/chromedp/chromedp v0.5.1
+	github.com/davecgh/go-spew v1.1.1
 	github.com/fogleman/gg v1.3.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/jinzhu/gorm v1.9.11

@@ -1,13 +1,13 @@
 package screenshot
 
 import (
+	"boxes/internal/screenshot/action"
+	"boxes/internal/screenshot/checklogin"
 	"context"
 	"log"
 	"net/url"
 	"os"
 	"path"
-	"peeka/internal/screenshot/action"
-	"peeka/internal/screenshot/checklogin"
 	"time"
 
 	"github.com/0x1un/env"
