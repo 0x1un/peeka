@@ -1,7 +1,7 @@
 package api
 
 import (
-	"boxes/pkg/common"
+	"github.com/0x1un/boxes/common"
 	"encoding/json"
 	"errors"
 	"fmt"

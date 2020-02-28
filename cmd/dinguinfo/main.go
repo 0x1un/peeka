@@ -1,7 +1,7 @@
 package main
 
 import (
-	"boxes/internal/logger"
+	"github.com/0x1un/boxes/logger"
 	"log"
 	"net/http"
 )

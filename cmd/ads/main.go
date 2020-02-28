@@ -1,7 +1,7 @@
 package main
 
 import (
-	"boxes/internal/ads"
+	"github.com/0x1un/boxes/ads"
 )
 
 func main() {

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"boxes/internal/chatbot"
-	"boxes/internal/screenshot"
+	"github.com/0x1un/boxes/chatbot"
+	"github.com/0x1un/boxes/screenshot"
 	"bytes"
 	"fmt"
 	"time"

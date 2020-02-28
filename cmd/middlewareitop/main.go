@@ -1,7 +1,7 @@
 package main
 
 import (
-	"boxes/cmd/middlewareitop/db"
+	"github.com/0x1un/boxes/cmd/middlewareitop/db"
 	"fmt"
 	"log"
 )

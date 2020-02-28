@@ -7,7 +7,7 @@ import (
 	"path"
 	"strings"
 
-	"boxes/internal/screenshot/action"
+	"github.com/0x1un/boxes/screenshot/action"
 
 	"github.com/chromedp/chromedp"
 	gim "github.com/ozankasikci/go-image-merge"

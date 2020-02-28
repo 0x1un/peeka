@@ -6,10 +6,10 @@ import (
 	"os"
 	"time"
 
-	"boxes/cmd/attendanceRobot/db"
-	"boxes/internal/chatbot"
-	"boxes/internal/component/array"
-	"boxes/internal/dingtalk/api"
+	"github.com/0x1un/boxes/cmd/attendanceRobot/db"
+	"github.com/0x1un/boxes/chatbot"
+	"github.com/0x1un/boxes/component/array"
+	"github.com/0x1un/boxes/dingtalk/api"
 	"log"
 
 	"github.com/subosito/gotenv"

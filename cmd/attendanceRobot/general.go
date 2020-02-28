@@ -1,8 +1,8 @@
 package main
 
 import (
-	"boxes/internal/dingtalk/api"
-	"boxes/internal/dingtalk/misc"
+	"github.com/0x1un/boxes/dingtalk/api"
+	"github.com/0x1un/boxes/dingtalk/misc"
 	"bytes"
 	"errors"
 	"fmt"

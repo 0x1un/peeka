@@ -1,8 +1,8 @@
 package screenshot
 
 import (
-	"boxes/internal/screenshot/action"
-	"boxes/internal/screenshot/checklogin"
+	"github.com/0x1un/boxes/screenshot/action"
+	"github.com/0x1un/boxes/screenshot/checklogin"
 	"context"
 	"log"
 	"net/url"

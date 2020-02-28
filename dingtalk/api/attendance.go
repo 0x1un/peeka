@@ -1,7 +1,7 @@
 package api
 
 import (
-	"boxes/internal/dingtalk/misc"
+	"github.com/0x1un/boxes/dingtalk/misc"
 	"encoding/json"
 	"errors"
 	"fmt"

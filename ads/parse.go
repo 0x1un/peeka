@@ -1,7 +1,7 @@
 package ads
 
 import (
-	"boxes/internal/component/encode"
+	"github.com/0x1un/boxes/component/encode"
 	"bufio"
 	"os"
 	"strings"

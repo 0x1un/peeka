@@ -1,7 +1,7 @@
 package chatbot
 
 import (
-	network "boxes/internal/component/net"
+	network "github.com/0x1un/boxes/component/net"
 	"bytes"
 	"encoding/json"
 	"log"

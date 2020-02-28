@@ -1,7 +1,7 @@
 package main
 
 import (
-	"boxes/internal/dingtalk/api"
+	"github.com/0x1un/boxes/dingtalk/api"
 	"fmt"
 	"html/template"
 	"log"
