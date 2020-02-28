@@ -1,9 +1,9 @@
 package ads
 
 import (
+	"boxes/internal/component/encode"
 	"bufio"
 	"os"
-	"peeka/internal/component/encode"
 	"strings"
 )
 
