@@ -12,6 +12,10 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/ozankasikci/go-image-merge v0.2.2
 	github.com/qiniu/api.v7/v7 v7.4.1
+	github.com/spf13/pflag v1.0.5
 	github.com/subosito/gotenv v1.2.0
 	golang.org/x/image v0.0.0-20200119044424-58c23975cae1 // indirect
+	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
+	golang.org/x/text v0.3.0
+	gopkg.in/ldap.v3 v3.1.0
 )
