@@ -30,7 +30,7 @@ func FillFormTemplate(city, local, ad_user, contact, fault_type, fault_range, fa
 	return formValues
 }
 
-func (self *DingTalkClient) SendProcessForTest(formComponent FormValues) (*CreateProcessInstanceResp, error) {
+func (self *DingTalkClient) SendProcess(formComponent FormValues) (*CreateProcessInstanceResp, error) {
 
 	var (
 		processResp *CreateProcessInstanceResp
