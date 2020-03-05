@@ -1,7 +1,6 @@
 package api
 
 import (
-	"github.com/0x1un/boxes/dingtalk/misc"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -11,11 +10,13 @@ import (
 	"net/url"
 	"os"
 	"time"
+
+	"github.com/0x1un/boxes/dingtalk/misc"
 )
 
 var (
-	APPKEY    = os.Getenv("APPKEY")
-	APPSECRET = os.Getenv("APPSECRET")
+	APPKEY    = os.Getenv("APPKEY")    // get appkey from env by default
+	APPSECRET = os.Getenv("APPSECRET") // get appsecret from env by default
 	Client    = NewClient(APPKEY, APPSECRET)
 )
 

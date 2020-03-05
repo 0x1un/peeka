@@ -1,11 +1,10 @@
 package api
 
 import (
-	network "github.com/0x1un/boxes/component/net"
 	"bytes"
 	"encoding/json"
-	"os"
-	"strconv"
+
+	network "github.com/0x1un/boxes/component/net"
 )
 
 // Methods
@@ -17,9 +16,10 @@ func (f *FormValues) add(key, value string) {
 	})
 }
 
+// 私人定制表单，非通用
 // 城市，臺席號，域帳號，聯繫方式，故障類型，故障範圍，故障現象
 // 這裏的工單爲現在自用的，具體實現靈活的用map或struct實現即可。
-func FillForm(city, local, ad_user, contact, fault_type, fault_range, faults string) (formValues FormValues) {
+func FillFormTemplate(city, local, ad_user, contact, fault_type, fault_range, faults string) (formValues FormValues) {
 	formValues.add("城市", city)
 	formValues.add("台席号", local)
 	formValues.add("域账号", ad_user)
@@ -33,23 +33,11 @@ func FillForm(city, local, ad_user, contact, fault_type, fault_range, faults str
 func (self *DingTalkClient) SendProcessForTest(formComponent FormValues) (*CreateProcessInstanceResp, error) {
 
 	var (
-		processCreator CreateProcessInstanceReq
-		formValues     FormValues
+		processResp *CreateProcessInstanceResp
 	)
-	agentid, err := strconv.Atoi(os.Getenv("APP_AGENT_ID"))
-	senderdep_id, err := strconv.Atoi(os.Getenv("DEPID"))
-	if err != nil {
-		return nil, err
-	}
-	processCreator.AgentId = int64(agentid)
-	processCreator.ProcessCode = os.Getenv("APROVID")
-	processCreator.OriginatorUserId = os.Getenv("USERID")
-	processCreator.DeptId = int64(senderdep_id)
-	formValues = formComponent
+	self.ProcessReq.FormComponentValues = formComponent
 
-	processCreator.FormComponentValues = formValues
-
-	data, err := json.Marshal(processCreator)
+	data, err := json.Marshal(self.ProcessReq)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +45,6 @@ func (self *DingTalkClient) SendProcessForTest(formComponent FormValues) (*Creat
 	url := "https://oapi.dingtalk.com/topapi/processinstance/create?access_token=" + self.AccessToken
 	result := network.Post(url, d)
 
-	var processResp *CreateProcessInstanceResp
 	if err := json.Unmarshal(result, &processResp); err != nil {
 		return nil, err
 	}

@@ -1,9 +1,10 @@
 package api
 
 import (
-	"github.com/0x1un/boxes/dingtalk/misc"
 	"net/http"
 	"net/url"
+
+	"github.com/0x1un/boxes/dingtalk/misc"
 )
 
 type ErrResponse struct {
@@ -29,6 +30,7 @@ type DingTalkClient struct {
 	Client      *http.Client
 	Parameters  url.Values
 	Data        misc.Data
+	ProcessReq  *CreateProcessInstanceReq
 	APPKEY      string
 	APPSECRET   string
 	BaseURI     string
