@@ -30,7 +30,7 @@ type DingTalkClient struct {
 	Client      *http.Client
 	Parameters  url.Values
 	Data        misc.Data
-	ProcessReq  *CreateProcessInstanceReq
+	ProcessReq  CreateProcessInstanceReq
 	APPKEY      string
 	APPSECRET   string
 	BaseURI     string
