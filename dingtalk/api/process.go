@@ -50,3 +50,8 @@ func (self *DingTalkClient) SendProcess(formComponent FormValues) (*CreateProces
 	}
 	return processResp, nil
 }
+
+func (self *DingTalkClient) GetProcessInstanceDetail(processid string) (*ProcessInstanceDetail, error) {
+	url := "https://oapi.dingtalk.com/topapi/processinstance/get?access_token=" + self.AccessToken
+
+}

@@ -36,3 +36,42 @@ type BaseResp struct {
 	ErrCode int    `json:"errcode"`
 	ErrMsg  string `json:"errmsg"`
 }
+type OperationRecords []struct {
+	Userid          string `json:"userid"`
+	Date            string `json:"date"`
+	OperationType   string `json:"operation_type"`
+	OperationResult string `json:"operation_result"`
+	Remark          string `json:"remark"`
+}
+
+type Tasks []struct {
+	Userid     string `json:"userid"`
+	TaskStatus string `json:"task_status"`
+	TaskResult string `json:"task_result"`
+	CreateTime string `json:"create_time"`
+	FinishTime string `json:"finish_time"`
+	Taskid     string `json:"taskid"`
+}
+
+type ProcessInstance struct {
+	Title                      string `json:"title"`
+	CreateTime                 string `json:"create_time"`
+	FinishTime                 string `json:"finish_time"`
+	OriginatorUserid           string `json:"originator_userid"`
+	OriginatorDeptID           string `json:"originator_dept_id"`
+	Status                     string `json:"status"`
+	CcUserids                  string `json:"cc_userids"`
+	Result                     string `json:"result"`
+	BusinessID                 string `json:"business_id"`
+	OriginatorDeptName         string `json:"originator_dept_name"`
+	BizAction                  string `json:"biz_action"`
+	FormComponentValuesVo      `json:"form_component_values"`
+	OperationRecords           `json:"operation_records"`
+	Tasks                      `json:"tasks"`
+	AttachedProcessInstanceIds []interface{} `json:"attached_process_instance_ids"`
+}
+
+type ProcessInstanceDetail struct {
+	BaseResp
+	ProcessInstance `json:"process_instance"`
+}
